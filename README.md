@@ -46,12 +46,14 @@ adb shell dpm set-device-owner "com.android.deviceops/.DeviceAdminReceiver"
 
 ---
 
-## <font color="#dd3333">免责声明</font>
+## <font color="#dd3333">高危功能</font>
 
-* **测试限制**：系统核心应用仅允许进行 6 分钟的停用测试。
-* **风险警告**：停用系统级关键应用可能导致当前用户空间运行正常，但**重启后无法进入系统（卡屏/黑屏）**。
-* **补救措施**：若因停用系统应用导致无法开机，唯一的解决办法是进入 Recovery 模式**格式化 Data 分区**。
-* **责任申明**：请谨慎操作系统组件，开发者不对因误操作导致的数据丢失负责。
+系统应用可进行6分钟停用测试
+但注意！停用系统应用后，用户空间可能正常，但重启可能无法开机
+解决办法只有格式化
 
 ---
+
+
+
 <font color="#9E9E9E" size="2">Powered by Claude</font>
