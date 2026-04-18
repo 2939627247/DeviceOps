@@ -54,6 +54,4 @@ adb shell dpm set-device-owner "com.android.deviceops/.DeviceAdminReceiver"
 * **责任申明**：请谨慎操作系统组件，开发者不对因误操作导致的数据丢失负责。
 
 ---
-<p align="right">
-<font color="#777777" size="2">Powered by Claude</font>
-</p>
+<font color="#9E9E9E" size="2">Powered by Claude</font>
