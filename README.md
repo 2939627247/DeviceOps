@@ -19,8 +19,6 @@ adb shell dpm set-device-owner "com.android.deviceops/.DeviceAdminReceiver"
 
 ## 版本说明
 
-本工具提供两个版本，均遵循 **One UI / Material 3** 设计规范，其核心功能一致：
-
 ### 1. Native (普通版)
 * 常规应用图标与名称，直接进入管理界面。
 
