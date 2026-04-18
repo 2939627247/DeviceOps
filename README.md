@@ -2,8 +2,6 @@
 
 A device management application based on the Android **Device Owner API**, providing HTTP proxy and application visibility control.
 
----
-
 # Setup
 
 DeviceOps requires Device Owner privileges, which must be granted manually via ADB after installation.
@@ -27,8 +25,6 @@ Accounts can be added back normally after activation.
 > [!NOTE]
 > Activation persists across reboots. To revoke Device Owner, use the uninstall option within the app — no other removal path is available.
 
----
-
 # Variants
 
 ### Native
@@ -41,8 +37,6 @@ On launch, a dialog reading *"请连接手机"* is displayed:
 - **Short press** "确定" — exits the app
 - **Hold** "确定" for **≥ 0.79 seconds** — enters the management interface
 
----
-
 # Features
 
 ## HTTP Proxy
@@ -54,8 +48,6 @@ OneUI 8.0+ removes the TUN module from the kernel. DeviceOps provides an HTTP pr
 Uses `DevicePolicyManager.setApplicationHidden` to hide or restore applications without additional ADB interaction after initial setup.
 
 This differs from conventional app disabling. Hidden applications are isolated via a multi-user mechanism and disappear from the system-wide app list. They cannot be restored through **Settings → Apps** — only through DeviceOps.
-
----
 
 # Warning
 
