@@ -41,11 +41,11 @@ adb shell dpm set-device-owner "com.android.deviceops/.DeviceAdminReceiver"
 
 ## HTTP Proxy
 
-搭载WearOS 5.1+ 的手表内核移除已 TUN 模块，无法使用VpnService。DeviceOps 提供 HTTP 代理作为网络调试替代方案，在无 TUN 支持的环境下实现流量转发。
+搭载 **WearOS 5.1+** 的手表内核已移除 TUN 模块，无法使用VpnService。DeviceOps 提供 HTTP 代理作为网络调试替代方案，在无 TUN 支持的环境下实现流量转发。
 
 ## 应用可见性控制
 
-通过 `DevicePolicyManager.setApplicationHidden` 隐藏或恢复应用，初始配置完成后无需 ADB。
+通过 `DevicePolicyManager.setApplicationHidden` 隐藏或恢复应用，初次配置完成后再也无需连接 ADB。
 
 与常规停用不同，被隐藏的应用通过多用户隔离机制实现，将从系统全局应用列表中消失，无法通过**设置 → 应用**恢复，只能通过 DeviceOps 管理。
 
