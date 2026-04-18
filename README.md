@@ -3,13 +3,15 @@ A device management tool based on Device Owner API
 
 ## 权限授予
 
-由于本应用依赖 **Device Owner API**，安装后需通过 ADB 执行以下步骤手动授予权限：
+由于应用依赖 **Device Owner API**，安装后需通过 ADB 执行以下步骤手动授予权限：
 
-1.  **退出账号**：请先退出设备上所有的云账号（如 Google、三星、小米、华为等）。
+1.  **退出账号**：退出设备上所有账号（如 Google、三星、小米、华为等）。
 2.  **执行命令**：在电脑端连接手机并输入：
-    `adb shell dpm set-device-owner "com.android.deviceops/.DeviceAdminReceiver"`
-3.  **验证成功**：当命令行输出带有 `Success` 字符时，代表激活成功。
-4.  **恢复登录**：此时可以重新登录您的系统账号。
+    ```bash
+    adb shell dpm set-device-owner "com.android.deviceops/.DeviceAdminReceiver"
+    ```
+4.  **验证成功**：当命令行输出带有 `Success` 字符时，代表激活成功。
+5.  **恢复登录**：此时可以重新登录您的系统账号。
 
 > <font color="#777777" size="2">注：授权仅需执行一次，重启依然有效。如需取消授权，只能通过应用内的“卸载”功能执行。</font>
 
