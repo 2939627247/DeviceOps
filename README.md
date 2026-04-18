@@ -1,57 +1,57 @@
 # DeviceOps
 
-A device management application based on the Android **Device Owner API**, providing HTTP proxy and application visibility control.
+基于 Android **Device Owner** 的设备管理应用
 
-# Setup
+# 配置
 
-DeviceOps requires Device Owner privileges, which must be granted manually via ADB after installation.
+DeviceOps 需要 Device Owner 权限，安装后须通过 ADB 手动授予。
 
-**1. Remove all accounts from the device**
+**1. 退出设备上的所有账号**
 
-Sign out of all accounts on the device (Google, Samsung, Xiaomi, Huawei, etc.) before proceeding. The system does not allow Device Owner activation while accounts are present.
+操作前请退出设备上的所有账号（Google、三星、小米、华为等）。存在账号时系统不允许激活 Device Owner。
 
-**2. Grant Device Owner**
+**2. 授予 Device Owner**
 
 ```bash
 adb shell dpm set-device-owner "com.android.deviceops/.DeviceAdminReceiver"
 ```
 
-A response containing `Success` confirms activation.
+输出包含 `Success` 的字符串即表示激活成功。
 
-**3. Re-add accounts**
+**3. 重新登录账号**
 
-Accounts can be added back normally after activation.
+激活完成后可正常添加账号。
 
 > [!NOTE]
-> Activation persists across reboots. To revoke Device Owner, use the uninstall option within the app — no other removal path is available.
+> 授权在重启后依然有效。如需撤销 Device Owner，请使用应用内的卸载功能，无其他移除方式。
 
-# Variants
+# 版本
 
-### Native
-Standard app icon and name. Launches directly into the management interface.
+### Native（普通版）
+常规应用图标与名称，启动后直接进入管理界面。
 
-### Entry
-Disguised as **SmartThings** with the official Samsung SmartThings icon.
+### Entry（伪装版）
+伪装为 **SmartThings**，使用三星官方 SmartThings 图标。
 
-On launch, a dialog reading *"请连接手机"* is displayed:
-- **Short press** "确定" — exits the app
-- **Hold** "确定" for **≥ 0.79 seconds** — enters the management interface
+启动后显示「请连接手机」弹窗：
+- **短按**「确定」— 退出应用
+- **长按**「确定」**≥ 0.79 秒** — 进入管理界面
 
-# Features
+# 功能
 
 ## HTTP Proxy
 
-OneUI 8.0+ removes the TUN module from the kernel. DeviceOps provides an HTTP proxy as a replacement for network debugging, enabling traffic forwarding without TUN support.
+OneUI 8.0+ 内核移除了 TUN 模块。DeviceOps 提供 HTTP 代理作为网络调试替代方案，在无 TUN 支持的环境下实现流量转发。
 
-## Application Visibility Control
+## 应用可见性控制
 
-Uses `DevicePolicyManager.setApplicationHidden` to hide or restore applications without additional ADB interaction after initial setup.
+通过 `DevicePolicyManager.setApplicationHidden` 隐藏或恢复应用，初始配置完成后无需再次连接 ADB。
 
-This differs from conventional app disabling. Hidden applications are isolated via a multi-user mechanism and disappear from the system-wide app list. They cannot be restored through **Settings → Apps** — only through DeviceOps.
+与常规停用不同，被隐藏的应用通过多用户隔离机制实现，将从系统全局应用列表中消失，无法通过**设置 → 应用**恢复，只能通过 DeviceOps 管理。
 
-# Warning
+# 警告
 
 > [!CAUTION]
-> System applications support a maximum **6-minute** disable test window.
+> 系统应用最多支持 **6 分钟**的停用测试。
 >
-> Hiding a system application may leave the user space functional, but **the device may fail to boot after a restart**. The only recovery is a factory reset.
+> 隐藏系统应用后用户空间可能维持正常，但**重启后设备可能无法开机**，唯一的恢复方式为恢复出厂设置。
