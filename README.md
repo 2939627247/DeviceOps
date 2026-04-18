@@ -1,6 +1,6 @@
 # DeviceOps
 
-基于 Android **Device Owner** 的WearOS设备管理应用
+基于 Android **Device Owner** 的 **WearOS** 设备管理应用
 
 # 配置
 
@@ -41,7 +41,7 @@ adb shell dpm set-device-owner "com.android.deviceops/.DeviceAdminReceiver"
 
 ## HTTP Proxy
 
-OneUI 8.0+ 内核移除了 TUN 模块。DeviceOps 提供 HTTP 代理作为网络调试替代方案，在无 TUN 支持的环境下实现流量转发。
+搭载WearOS 5.1+ 的手表内核移除已 TUN 模块，无法使用VpnService。DeviceOps 提供 HTTP 代理作为网络调试替代方案，在无 TUN 支持的环境下实现流量转发。
 
 ## 应用可见性控制
 
