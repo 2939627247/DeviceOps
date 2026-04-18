@@ -1,6 +1,6 @@
 # DeviceOps
 
-基于 Android **Device Owner** 的设备管理应用
+基于 Android **Device Owner** 的WearOS设备管理应用
 
 # 配置
 
@@ -45,13 +45,13 @@ OneUI 8.0+ 内核移除了 TUN 模块。DeviceOps 提供 HTTP 代理作为网络
 
 ## 应用可见性控制
 
-通过 `DevicePolicyManager.setApplicationHidden` 隐藏或恢复应用，初始配置完成后无需再次连接 ADB。
+通过 `DevicePolicyManager.setApplicationHidden` 隐藏或恢复应用，初始配置完成后无需 ADB。
 
 与常规停用不同，被隐藏的应用通过多用户隔离机制实现，将从系统全局应用列表中消失，无法通过**设置 → 应用**恢复，只能通过 DeviceOps 管理。
 
 # 警告
 
 > [!CAUTION]
-> 系统应用最多支持 **6 分钟**的停用测试。
+> 系统应用支持 **6 分钟**的停用测试。
 >
 > 隐藏系统应用后用户空间可能维持正常，但**重启后设备可能无法开机**，唯一的恢复方式为恢复出厂设置。
