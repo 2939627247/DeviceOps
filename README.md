@@ -1,40 +1,58 @@
 # DeviceOps
 A device management tool based on Device Owner API
 
-# <font size="6" color="#333333">DeviceOps</font>
+## 权限授予
 
-<font size="3" color="#666666">[!] 提示: 遇到任何技术疑问或操作障碍，请先问AI</font>
+由于本应用依赖 **Device Owner API**，安装后需通过 ADB 执行以下步骤手动授予权限：
 
-<font size="5" color="#444444">权限授予：</font>
-<font size="3" color="#666666">由于应用依赖 Device Owner API，安装后需通过 ADB 授予权限：</font>
-<font size="3" color="#666666">1.退出设备上所有账号(如Google/三星/小米账号)</font>
-<font size="3" color="#666666">2.命令行输入:adb shell dpm set-device-owner "com.android.deviceops/.DeviceAdminReceiver"</font>
-<font size="3" color="#666666">(激活成功会输出带有Success的字符)</font>
-<font size="3" color="#666666">3.你可以登录你的账号了</font>
+1.  **退出账号**：请先退出设备上所有的云账号（如 Google、三星、小米、华为等）。
+2.  **执行命令**：在电脑端连接手机并输入：
+    `adb shell dpm set-device-owner "com.android.deviceops/.DeviceAdminReceiver"`
+3.  **验证成功**：当命令行输出带有 `Success` 字符时，代表激活成功。
+4.  **恢复登录**：此时可以重新登录您的系统账号。
 
-<font size="3" color="#666666">仅需一次授权，重启依然有效，只能通过应用卸载自身关闭授权</font>
+> <font color="#777777" size="2">注：授权仅需执行一次，重启依然有效。如需取消授权，只能通过应用内的“卸载”功能执行。</font>
 
-<font size="3" color="#666666">UI 规范：One UI / Material 3 设计语言</font>
+---
 
-<font size="5" color="#444444">两个版本：</font>
-<font size="3" color="#666666">Entry 对应伪装版</font>
-<font size="3" color="#666666">Native 对应普通版</font>
+## 版本说明
 
-<font size="3" color="#666666">唯一区别，伪装版本特殊在：</font>
-<font size="3" color="#666666">1. 应用名称是SmartThings</font>
-<font size="3" color="#666666">2. 应用图标是三星的SmartThings</font>
-<font size="3" color="#666666">3. 启动应用将显示伪装，提示“请连接手机 确定”，短按“确定”将退出应用，长按“确定”满0.79秒后，进入真界面</font>
+本工具提供两个版本，均遵循 **One UI / Material 3** 设计规范，其核心功能一致：
 
-<font size="5" color="#444444">功能：</font>
-<font size="4" color="#555555">1. HTTP Proxy</font>
-<font size="3" color="#666666">升级到OneUI8.0+后，内核TUN模块被移除，提供HTTP Proxy作为网络调试的功能替代，确保在无TUN支持的环境下依然能够实现高效的流量代理与分发。</font>
-<font size="4" color="#555555">2. 管理停用应用</font>
-<font size="3" color="#666666">无需adb授权，停用/启用应用</font>
-<font size="3" color="#666666">特殊性：由于调用的是Device Owner API(setApplicationHidden)实现的停用，停用实现方式是多用户隔离机制，这不同于常规冻结式停用，你无法在系统设置-应用列表里找到app并重新启用，只能通过本应用管理。</font>
+### 1. Native (普通版)
+* 常规应用图标与名称，直接进入管理界面。
 
-<font size="5" color="#444444">免责声明：</font>
-<font size="3" color="#666666">系统应用可进行6分钟停用测试</font>
-<font size="3" color="#666666">但注意！停用系统应用后，用户空间可能正常，但重启可能无法开机</font>
-<font size="3" color="#666666">解决办法只有格式化</font>
+### 2. Entry (伪装版)
+* **外观伪装**：应用名称显示为 `SmartThings`，并使用三星官方 `SmartThings` 图标。
+* **进入方式**：启动后显示“请连接手机”弹窗。
+    * **短按“确定”**：直接退出应用。
+    * **长按“确定”**：持续按下满 **0.79秒** 后，方可进入真实操作界面。
 
-<font size="2" color="#999999">Powered by Claude</font>
+---
+
+## 核心功能
+
+### 1. HTTP Proxy (网络调试)
+针对 **OneUI 8.0+** 内核移除 TUN 模块的限制，本应用提供了 HTTP Proxy 作为替代方案。
+* 实现在无 TUN 支持的环境下高效的流量代理与分发。
+* 支持自定义端口配置，满足网络调试需求。
+
+### 2. 高级应用停用管理
+利用 `Device Owner API (setApplicationHidden)` 实现的应用管理功能。
+* **多用户隔离机制**：与常规冻结不同，通过本方式停用的应用会从系统全局视图中彻底消失。
+* **唯一控制端**：停用后的应用无法在“系统设置 - 应用列表”中找回或重新启用，必须通过本应用进行管理。
+* **无需重复 ADB**：激活 Device Owner 后，后续停用/启用操作无需再连接电脑。
+
+---
+
+## <font color="#dd3333">免责声明</font>
+
+* **测试限制**：系统核心应用仅允许进行 6 分钟的停用测试。
+* **风险警告**：停用系统级关键应用可能导致当前用户空间运行正常，但**重启后无法进入系统（卡屏/黑屏）**。
+* **补救措施**：若因停用系统应用导致无法开机，唯一的解决办法是进入 Recovery 模式**格式化 Data 分区**。
+* **责任申明**：请谨慎操作系统组件，开发者不对因误操作导致的数据丢失负责。
+
+---
+<p align="right">
+<font color="#777777" size="2">Powered by Claude</font>
+</p>
