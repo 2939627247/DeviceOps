@@ -3,15 +3,15 @@ A device management tool based on Device Owner API
 
 ## 权限授予
 
-由于应用依赖 **Device Owner API**，安装后需通过 ADB 执行以下步骤手动授予权限：
+应用依赖 **Device Owner API**，安装后需通过 ADB 执行以下步骤手动授予权限：
 
-1.  **退出账号**：退出设备上所有账号（如 Google、三星、小米、华为等）。
-2.  **执行命令**：在电脑端连接手机并输入：
+1.  **前提**：退出设备上所有账号（如 Google、三星、小米、华为等）。
+2.  **授权**：命令行输入：
 ```bash
 adb shell dpm set-device-owner "com.android.deviceops/.DeviceAdminReceiver"
 ```
-3.  **验证成功**：当命令行输出带有 `Success` 字符时，代表激活成功。
-4.  **恢复登录**：此时可以重新登录您的系统账号。
+3.  **验证**：当命令行输出带有 `Success` 字符时，代表激活成功。
+4.  **结束**：此时可以重新登录您的系统账号。
 
 > <font color="#777777" size="2">注：授权仅需执行一次，重启依然有效。如需取消授权，只能通过应用内的“卸载”功能执行。</font>
 
@@ -27,10 +27,9 @@ adb shell dpm set-device-owner "com.android.deviceops/.DeviceAdminReceiver"
 ### 2. Entry (伪装版)
 * **外观伪装**：应用名称显示为 `SmartThings`，并使用三星官方 `SmartThings` 图标。
 * **进入方式**：启动后显示“请连接手机”弹窗。
-    * **短按“确定”**：直接退出应用。
-    * **长按“确定”**：持续按下满 **0.79秒** 后，方可进入真实操作界面。
+    * **短按“确定”**：将直接退出应用。
+    * **长按“确定”**：持续按下满 **0.79秒** 后，将跳转到应用正常主界面
 
----
 
 ## 核心功能
 
