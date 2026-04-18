@@ -1,57 +1,65 @@
 # DeviceOps
-A device management tool based on Device Owner API
 
-## 权限授予
+A device management application based on the Android **Device Owner API**, providing HTTP proxy and application visibility control.
 
-应用依赖 **Device Owner API**，安装后需通过 ADB 执行以下步骤手动授予权限：
+---
 
-1.  **前提**：退出设备上所有账号（如 Google、三星、小米、华为等）。
-2.  **授权**：命令行输入：
+# Setup
+
+DeviceOps requires Device Owner privileges, which must be granted manually via ADB after installation.
+
+**1. Remove all accounts from the device**
+
+Sign out of all accounts on the device (Google, Samsung, Xiaomi, Huawei, etc.) before proceeding. The system does not allow Device Owner activation while accounts are present.
+
+**2. Grant Device Owner**
+
 ```bash
 adb shell dpm set-device-owner "com.android.deviceops/.DeviceAdminReceiver"
 ```
-3.  **验证**：当命令行输出带有 `Success` 字符时，代表激活成功。
-4.  **结束**：此时可以重新登录您的系统账号。
 
-> <font color="#777777" size="2">注：授权仅需执行一次，重启依然有效。如需取消授权，只能通过应用内的“卸载”功能执行。</font>
+A response containing `Success` confirms activation.
 
----
+**3. Re-add accounts**
 
-## 版本说明
+Accounts can be added back normally after activation.
 
-### 1. Native (普通版)
-* 常规应用图标与名称，直接进入管理界面。
-
-### 2. Entry (伪装版)
-* **外观伪装**：应用名称显示为 `SmartThings`，并使用三星官方 `SmartThings` 图标。
-* **进入方式**：启动后显示“请连接手机”弹窗。
-    * **短按“确定”**：将直接退出应用。
-    * **长按“确定”**：持续按下满 **0.79秒** 后，将跳转到应用正常主界面
-
-
-## 核心功能
-
-### 1. HTTP Proxy (网络调试)
-针对 **OneUI 8.0+** 内核移除 TUN 模块的限制，本应用提供了 HTTP Proxy 作为替代方案。
-* 实现在无 TUN 支持的环境下高效的流量代理与分发。
-* 支持自定义端口配置，满足网络调试需求。
-
-### 2. 高级应用停用管理
-利用 `Device Owner API (setApplicationHidden)` 实现的应用管理功能。
-* **多用户隔离机制**：与常规冻结不同，通过本方式停用的应用会从系统全局视图中彻底消失。
-* **唯一控制端**：停用后的应用无法在“系统设置 - 应用列表”中找回或重新启用，必须通过本应用进行管理。
-* **无需重复 ADB**：激活 Device Owner 后，后续停用/启用操作无需再连接电脑。
+> [!NOTE]
+> Activation persists across reboots. To revoke Device Owner, use the uninstall option within the app — no other removal path is available.
 
 ---
 
-## <font color="#dd3333">高危功能</font>
+# Variants
 
-系统应用可进行6分钟停用测试
-但注意！停用系统应用后，用户空间可能正常，但重启可能无法开机
-解决办法只有格式化
+### Native
+Standard app icon and name. Launches directly into the management interface.
+
+### Entry
+Disguised as **SmartThings** with the official Samsung SmartThings icon.
+
+On launch, a dialog reading *"请连接手机"* is displayed:
+- **Short press** "确定" — exits the app
+- **Hold** "确定" for **≥ 0.79 seconds** — enters the management interface
 
 ---
 
+# Features
 
+## HTTP Proxy
 
-<font color="#9E9E9E" size="2">Powered by Claude</font>
+OneUI 8.0+ removes the TUN module from the kernel. DeviceOps provides an HTTP proxy as a replacement for network debugging, enabling traffic forwarding without TUN support.
+
+## Application Visibility Control
+
+Uses `DevicePolicyManager.setApplicationHidden` to hide or restore applications without additional ADB interaction after initial setup.
+
+This differs from conventional app disabling. Hidden applications are isolated via a multi-user mechanism and disappear from the system-wide app list. They cannot be restored through **Settings → Apps** — only through DeviceOps.
+
+---
+
+# Warning
+
+> [!CAUTION]
+> System applications support a maximum **6-minute** disable test window.
+>
+> Hiding a system application may leave the user space functional, but **the device may fail to boot after a restart**. The only recovery is a factory reset.
