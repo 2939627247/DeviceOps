@@ -55,3 +55,9 @@ adb shell dpm set-device-owner "com.android.deviceops/.DeviceAdminReceiver"
 > 系统应用支持 **6 分钟**的停用测试。
 >
 > 隐藏系统应用后用户空间可能维持正常，但**重启后设备可能无法开机**，唯一的恢复方式为恢复出厂设置。
+
+# Credits
+
+## AI Agents
+
+<img src="docs/icons/claude.png" height="16" align="center"> <img src="docs/icons/gemini.png" height="16" align="center"> Claude / Gemini 提供代码支持
