@@ -59,4 +59,4 @@ adb shell dpm set-device-owner "com.android.deviceops/.DeviceAdminReceiver"
 # 致谢
 
 ## AI Agents
-Claude <img src="docs/icons/claude.png" height="20" align="center"> / Gemini <img src="docs/icons/gemini.png" height="20" align="center"> 提供代码支持
+<img src="docs/icons/claude.png" height="18" align="center"> Claude / <img src="docs/icons/gemini.png" height="18" align="center"> Gemini 提供代码支持
