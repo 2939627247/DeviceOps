@@ -1,6 +1,6 @@
 # DeviceOps
 
-基于 Android **Device Owner** 的 **WearOS** 设备管理应用，不依赖 ADB 驻留进程
+基于 Android 企业管理策略 **Device Owner** 的 **WearOS** 设备管理应用，不依赖 ADB 驻留进程
 
 # 配置
 
