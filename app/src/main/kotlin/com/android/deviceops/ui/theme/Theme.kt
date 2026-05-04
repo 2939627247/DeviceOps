@@ -10,7 +10,6 @@ fun DeviceOpsTheme(content: @Composable () -> Unit) {
     val colorScheme = ColorScheme(
         background            = Background,
         onBackground          = PrimaryText,
-        surface               = ChipBackground,
         onSurface             = PrimaryText,
         onSurfaceVariant      = SecondaryText,
         primary               = ButtonActive,
