@@ -68,28 +68,28 @@ fun SearchResultsScreen(
                 }
             }
 
-            if (results.isEmpty()) {
-                item {
-                    Text("未找到应用", color = SecondaryText, fontSize = 13.sp)
-                }
-            } else {
-                // ── Fix 2: A scheme — all results inside ONE rounded container
-                item {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 10.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(ChipBackground)
-                    ) {
-                        results.forEachIndexed { idx, app ->
-                            SearchAppRow(
-                                app     = app,
-                                onClick = { onAppClick(app.packageName) }
+            if (results.isEmpty()) item {
+                Text("未找到应用", color = SecondaryText, fontSize = 13.sp)
+            }
+
+            if (results.isNotEmpty()) item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(ChipBackground)
+                ) {
+                    results.forEachIndexed { idx, app ->
+                        SearchAppRow(
+                            app     = app,
+                            onClick = { onAppClick(app.packageName) }
+                        )
+                        if (idx < results.lastIndex) {
+                            androidx.compose.material3.HorizontalDivider(
+                                color = DividerColor,
+                                thickness = 0.5.dp
                             )
-                            if (idx < results.lastIndex) {
-                                Divider(color = DividerColor, thickness = 0.5.dp)
-                            }
                         }
                     }
                 }
