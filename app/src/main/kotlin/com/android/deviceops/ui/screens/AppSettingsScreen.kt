@@ -71,14 +71,12 @@ fun AppSettingsScreen(
                 )
             }
 
-            if (isSystem) {
-                item {
-                    RadioRow(
-                        label    = "测试停用",
-                        selected = selected == AppMode.TEST_DISABLE,
-                        onSelect = { selected = AppMode.TEST_DISABLE }
-                    )
-                }
+            if (isSystem) item {
+                RadioRow(
+                    label    = "测试停用",
+                    selected = selected == AppMode.TEST_DISABLE,
+                    onSelect = { selected = AppMode.TEST_DISABLE }
+                )
             }
             item {
                 RadioRow(
