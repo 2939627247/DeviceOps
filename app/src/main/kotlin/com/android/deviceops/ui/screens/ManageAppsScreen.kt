@@ -30,7 +30,8 @@ import androidx.wear.compose.material3.lazy.rememberTransformingLazyColumnState
 import androidx.wear.input.RemoteInputIntentHelper
 import com.android.deviceops.data.AppFilter
 import com.android.deviceops.data.AppInfo
-import com.android.deviceops.ui.theme.*import com.android.deviceops.viewmodel.ManageAppsViewModel
+import com.android.deviceops.ui.theme.*
+import com.android.deviceops.viewmodel.ManageAppsViewModel
 
 private const val KEY_SEARCH = "search_query"
 
@@ -132,7 +133,7 @@ fun ManageAppsScreen(
                 Spacer(Modifier.height(4.dp))
             }
 
-            // ── Fix 2: A scheme — all rows inside ONE rounded container ────
+            // ── App list ───────────────────────────────────────────────────
             item {
                 if (apps.isNotEmpty()) {
                     Column(
@@ -202,7 +203,7 @@ private fun AppRow(app: AppInfo, onClick: () -> Unit) {
                     )
                 }
                 app.isDisabled -> Text(
-                    text     = "己停用",
+                    text     = "已停用",
                     color    = DisabledRed,
                     fontSize = 11.sp
                 )
