@@ -86,8 +86,8 @@ fun SearchResultsScreen(
                             onClick = { onAppClick(app.packageName) }
                         )
                         if (idx < results.lastIndex) {
-                            androidx.compose.material3.HorizontalDivider(
-                                color = DividerColor,
+                            Divider(
+                                color     = DividerColor,
                                 thickness = 0.5.dp
                             )
                         }
@@ -134,7 +134,7 @@ private fun SearchAppRow(app: AppInfo, onClick: () -> Unit) {
                         fontSize = 11.sp
                     )
                 }
-                app.isDisabled -> Text("己停用", color = DisabledRed, fontSize = 11.sp)
+                app.isDisabled -> Text("已停用", color = DisabledRed, fontSize = 11.sp)
                 else -> {}
             }
         }
