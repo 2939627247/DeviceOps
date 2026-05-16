@@ -99,12 +99,18 @@ fun ManageAppsScreen(
                     AppFilter.USER   -> "用户应用"
                     AppFilter.SYSTEM -> "系统应用"
                 }
-                Chip(
-                    onClick = onFilterClick,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
-                    label          = { Text(mainLabel, fontSize = 12.sp) },
-                    secondaryLabel = { Text(subLabel, fontSize = 11.sp) }
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp)
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
+                        .clickable(onClick = onFilterClick)
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                ) {
+                    Text(mainLabel, color = MaterialTheme.colorScheme.onSurface, fontSize = 12.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Medium)
+                    Text(subLabel, color = MaterialTheme.colorScheme.primary, fontSize = 11.sp)
+                }
                 Spacer(Modifier.height(4.dp))
             }
 
