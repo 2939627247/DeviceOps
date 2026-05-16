@@ -101,7 +101,12 @@ fun HttpProxyScreen(
                     modifier = Modifier.width(140.dp).height(48.dp),
                     shape    = RoundedCornerShape(24.dp)
                 ) {
-                    Text("确定", fontSize = 16.sp)
+                    Text(
+                        "确定",
+                        fontSize   = 16.sp,
+                        textAlign  = androidx.compose.ui.text.style.TextAlign.Center,
+                        modifier   = Modifier.fillMaxWidth()
+                    )
                 }
             }
         }

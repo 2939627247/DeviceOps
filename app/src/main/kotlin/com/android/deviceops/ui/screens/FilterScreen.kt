@@ -1,10 +1,15 @@
 package com.android.deviceops.ui.screens
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -29,6 +34,12 @@ fun FilterScreen(
         AppFilter.SYSTEM to "系统应用",
     )
 
+    val primary          = MaterialTheme.colorScheme.primary
+    val onSurface        = MaterialTheme.colorScheme.onSurface
+    val outlineVariant   = MaterialTheme.colorScheme.outlineVariant
+    val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
+    val primaryContainer = MaterialTheme.colorScheme.primaryContainer
+
     ScreenScaffold(scrollState = columnState) {
         TransformingLazyColumn(
             state = columnState,
@@ -39,19 +50,66 @@ fun FilterScreen(
             contentPadding = PaddingValues(vertical = 28.dp)
         ) {
             item {
-                ListHeader { Text("筛选方式", fontSize = 15.sp) }
+                Text(
+                    "筛选方式",
+                    color    = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 15.sp,
+                    modifier = Modifier.padding(bottom = 10.dp)
+                )
             }
 
-            items(options.size) { idx ->
-                val (filter, label) = options[idx]
-                RadioButton(
-                    selected = current == filter,
-                    onSelect = {
-                        vm.setFilter(filter)
-                        onBack()
-                    },
-                    label = { Text(label, fontSize = 14.sp) }
-                )
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp)
+                        .background(surfaceContainer, RoundedCornerShape(12.dp))
+                ) {
+                    options.forEachIndexed { idx, (filter, label) ->
+                        val isSelected = current == filter
+                        Column {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(
+                                        if (isSelected) primaryContainer
+                                        else androidx.compose.ui.graphics.Color.Transparent
+                                    )
+                                    .clickable {
+                                        vm.setFilter(filter)
+                                        onBack()
+                                    }
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text     = label,
+                                    color    = onSurface,
+                                    fontSize = 14.sp,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Canvas(Modifier.size(18.dp)) {
+                                    val r   = size.minDimension / 2f
+                                    val ctr = Offset(r, r)
+                                    if (isSelected) {
+                                        drawCircle(color = primary, radius = r, center = ctr)
+                                        drawCircle(color = androidx.compose.ui.graphics.Color.White, radius = r * 0.38f, center = ctr)
+                                    } else {
+                                        drawCircle(color = outlineVariant, radius = r - 1.dp.toPx(), center = ctr, style = Stroke(1.5.dp.toPx()))
+                                    }
+                                }
+                            }
+                            if (idx < options.lastIndex) {
+                                Spacer(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(0.5.dp)
+                                        .background(outlineVariant)
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
     }
