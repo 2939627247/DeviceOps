@@ -25,8 +25,8 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.material3.*
-import androidx.wear.compose.material3.lazy.TransformingLazyColumn
-import androidx.wear.compose.material3.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.input.RemoteInputIntentHelper
 import com.android.deviceops.data.AppFilter
 import com.android.deviceops.data.AppInfo
@@ -149,7 +149,7 @@ fun ManageAppsScreen(
                                 onClick = { onAppClick(app.packageName) }
                             )
                             if (idx < apps.lastIndex) {
-                                Divider(
+                                HorizontalDivider(
                                     color     = DividerColor,
                                     thickness = 0.5.dp
                                 )

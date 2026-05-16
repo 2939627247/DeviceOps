@@ -19,8 +19,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.material3.*
-import androidx.wear.compose.material3.lazy.TransformingLazyColumn
-import androidx.wear.compose.material3.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import com.android.deviceops.ui.theme.*
 import com.android.deviceops.viewmodel.ManageAppsViewModel
 
