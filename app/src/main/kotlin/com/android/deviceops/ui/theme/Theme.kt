@@ -26,7 +26,7 @@ fun DeviceOpsTheme(content: @Composable () -> Unit) {
             onTertiaryContainer   = Color(0xFFE0E0E6),
             onSurface             = Color(0xFFE6E1E5),
             onSurfaceVariant      = Color(0xFFB0B0B8),
-            surfaceContainer      = Color(0xFF252528),
+            surfaceContainer      = Color(0xFF202124),
             surfaceContainerLow   = Color(0xFF1A1A1C),
             surfaceContainerHigh  = Color(0xFF303035),
             background            = Color(0xFF000000),

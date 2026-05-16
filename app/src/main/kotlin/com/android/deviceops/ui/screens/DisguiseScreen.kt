@@ -17,6 +17,7 @@ import androidx.wear.compose.material3.Text
 import com.android.deviceops.ui.theme.Background
 import com.android.deviceops.ui.theme.ButtonActive
 import com.android.deviceops.ui.theme.PrimaryText
+import kotlinx.coroutines.withTimeoutOrNull
 
 private const val LONG_PRESS_THRESHOLD_MS = 790L
 
@@ -59,12 +60,18 @@ fun DisguiseScreen(
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onPress = {
-                                    val t0 = System.currentTimeMillis()
-                                    val released = tryAwaitRelease()
-                                    if (released) {
-                                        val elapsed = System.currentTimeMillis() - t0
-                                        if (elapsed >= LONG_PRESS_THRESHOLD_MS) onLongPress()
-                                        else onShortPress()
+                                    // 按住满 0.79s 立即触发长按，不等松手
+                                    val releasedEarly = withTimeoutOrNull(LONG_PRESS_THRESHOLD_MS) {
+                                        tryAwaitRelease()
+                                        true // 松手了，返回 true
+                                    }
+                                    if (releasedEarly != null) {
+                                        // 0.79s 内松手 = 短按
+                                        onShortPress()
+                                    } else {
+                                        // 按住满 0.79s = 立即跳转，不需要松手
+                                        onLongPress()
+                                        tryAwaitRelease() // 消费剩余的按压事件
                                     }
                                 }
                             )

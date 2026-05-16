@@ -50,9 +50,6 @@ fun HttpProxyScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             contentPadding = PaddingValues(vertical = 28.dp)
         ) {
-            item {
-                ListHeader { Text("HTTP 代理", fontSize = 15.sp) }
-            }
 
             item {
                 Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)) {
@@ -131,7 +128,7 @@ private fun ProxyField(
         textStyle = TextStyle(color = textColor, fontSize = 14.sp),
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(16.dp))
             .background(surface)
             .padding(horizontal = 12.dp, vertical = 11.dp),
         decorationBox = { inner ->
