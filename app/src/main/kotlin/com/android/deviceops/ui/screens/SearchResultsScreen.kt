@@ -52,12 +52,15 @@ fun SearchResultsScreen(
             contentPadding = PaddingValues(vertical = 24.dp)
         ) {
             item {
-                ListHeader {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.Search, contentDescription = null, modifier = Modifier.size(14.dp))
-                        Spacer(Modifier.width(4.dp))
-                        Text("\"$query\"", fontSize = 12.sp)
-                    }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                ) {
+                    Icon(Icons.Filled.Search, contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(14.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("\"$query\"", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                 }
             }
 
