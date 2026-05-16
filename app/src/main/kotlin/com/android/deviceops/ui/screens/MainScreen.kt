@@ -51,31 +51,22 @@ fun MainScreen(
             }
 
             item {
-                SplitToggleButton(
-                    checked         = proxyEnabled,
-                    onCheckedChange = { vm.toggleProxy(context) },
-                    onClick         = onHttpProxyClick,
+                SplitSwitchButton(
+                    checked                  = proxyEnabled,
+                    onCheckedChange          = { vm.toggleProxy(context) },
+                    toggleContentDescription = null,
+                    onContainerClick         = onHttpProxyClick,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 6.dp),
-                    colors = ToggleButtonDefaults.splitToggleButtonColors(
-                        checkedContainerColor        = ChipBackground,
-                        uncheckedContainerColor      = ChipBackground,
-                        checkedSplitContainerColor   = ChipBackground,
-                        uncheckedSplitContainerColor = ChipBackground,
-                    ),
-                    toggleControl = {
-                        Switch(
-                            checked         = proxyEnabled,
-                            onCheckedChange = null,
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor   = SwitchThumb,
-                                checkedTrackColor   = SwitchTrackOn,
-                                uncheckedThumbColor = SwitchThumb,
-                                uncheckedTrackColor = SwitchTrackOff,
-                            )
-                        )
-                    }
+                    colors = SwitchButtonDefaults.splitSwitchButtonColors(
+                        checkedContainerColor   = ChipBackground,
+                        uncheckedContainerColor = ChipBackground,
+                        checkedThumbColor       = SwitchThumb,
+                        checkedTrackColor       = SwitchTrackOn,
+                        uncheckedThumbColor     = SwitchThumb,
+                        uncheckedTrackColor     = SwitchTrackOff,
+                    )
                 ) {
                     Text(text = "HTTP Proxy", color = PrimaryText, fontSize = 14.sp)
                 }
@@ -86,31 +77,22 @@ fun MainScreen(
             }
 
             item {
-                SplitToggleButton(
-                    checked         = manageEnabled,
-                    onCheckedChange = { vm.toggleManageApps(context) },
-                    onClick         = onManageAppsClick,
+                SplitSwitchButton(
+                    checked                  = manageEnabled,
+                    onCheckedChange          = { vm.toggleManageApps(context) },
+                    toggleContentDescription = null,
+                    onContainerClick         = onManageAppsClick,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 6.dp),
-                    colors = ToggleButtonDefaults.splitToggleButtonColors(
-                        checkedContainerColor        = ChipBackground,
-                        uncheckedContainerColor      = ChipBackground,
-                        checkedSplitContainerColor   = ChipBackground,
-                        uncheckedSplitContainerColor = ChipBackground,
-                    ),
-                    toggleControl = {
-                        Switch(
-                            checked         = manageEnabled,
-                            onCheckedChange = null,
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor   = SwitchThumb,
-                                checkedTrackColor   = SwitchTrackOn,
-                                uncheckedThumbColor = SwitchThumb,
-                                uncheckedTrackColor = SwitchTrackOff,
-                            )
-                        )
-                    }
+                    colors = SwitchButtonDefaults.splitSwitchButtonColors(
+                        checkedContainerColor   = ChipBackground,
+                        uncheckedContainerColor = ChipBackground,
+                        checkedThumbColor       = SwitchThumb,
+                        checkedTrackColor       = SwitchTrackOn,
+                        uncheckedThumbColor     = SwitchThumb,
+                        uncheckedTrackColor     = SwitchTrackOff,
+                    )
                 ) {
                     Text(text = "管理停用应用", color = PrimaryText, fontSize = 14.sp)
                 }

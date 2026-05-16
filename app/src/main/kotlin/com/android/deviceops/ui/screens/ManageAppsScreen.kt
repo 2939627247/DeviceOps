@@ -149,9 +149,11 @@ fun ManageAppsScreen(
                                 onClick = { onAppClick(app.packageName) }
                             )
                             if (idx < apps.lastIndex) {
-                                HorizontalDivider(
-                                    color     = DividerColor,
-                                    thickness = 0.5.dp
+                                Spacer(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(0.5.dp)
+                                        .background(DividerColor)
                                 )
                             }
                         }

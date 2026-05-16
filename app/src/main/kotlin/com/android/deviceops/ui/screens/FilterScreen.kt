@@ -80,10 +80,12 @@ fun FilterScreen(
                 }
 
                 if (idx < options.size - 1) {
-                    HorizontalDivider(
-                        modifier  = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
-                        color     = DividerColor,
-                        thickness = 0.5.dp
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp)
+                            .height(0.5.dp)
+                            .background(DividerColor)
                     )
                 }
             }

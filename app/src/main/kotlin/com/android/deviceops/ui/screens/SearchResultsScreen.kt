@@ -86,9 +86,11 @@ fun SearchResultsScreen(
                             onClick = { onAppClick(app.packageName) }
                         )
                         if (idx < results.lastIndex) {
-                            HorizontalDivider(
-                                color     = DividerColor,
-                                thickness = 0.5.dp
+                            Spacer(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(0.5.dp)
+                                    .background(DividerColor)
                             )
                         }
                     }
