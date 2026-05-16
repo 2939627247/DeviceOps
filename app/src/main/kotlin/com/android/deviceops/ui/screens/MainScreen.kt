@@ -38,17 +38,18 @@ fun MainScreen(
     val manageEnabled by vm.manageAppsEnabled.collectAsStateWithLifecycle()
     val columnState   = rememberTransformingLazyColumnState()
 
-    val switchColors = SwitchButtonDefaults.splitSwitchButtonColors(
-        checkedContainerColor      = CardBg,
-        uncheckedContainerColor    = CardBg,
+    val switchColors = SwitchButtonDefaults.splitSwitchButtonColors().copy(
+        checkedContainerColor        = CardBg,
         checkedSplitContainerColor   = CardBg,
+        checkedThumbColor            = CheckedThumb,
+        checkedThumbIconColor        = CheckedIcon,
+        checkedTrackColor            = CheckedTrack,
+        checkedTrackBorderColor      = Color.Transparent,
+        uncheckedContainerColor      = CardBg,
         uncheckedSplitContainerColor = CardBg,
-        checkedThumbColor          = CheckedThumb,
-        uncheckedThumbColor        = UncheckedThumb,
-        checkedTrackColor          = CheckedTrack,
-        uncheckedTrackColor        = UncheckedTrack,
-        checkedIconColor           = CheckedIcon,
-        uncheckedIconColor         = UncheckedIcon,
+        uncheckedThumbColor          = UncheckedThumb,
+        uncheckedTrackColor          = UncheckedTrack,
+        uncheckedTrackBorderColor    = Color.Transparent,
     )
 
     ScreenScaffold(scrollState = columnState) {
