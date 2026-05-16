@@ -31,6 +31,8 @@ object Routes {
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 禁用所有窗口动画
+        window.setWindowAnimations(0)
         super.onCreate(savedInstanceState)
         setContent {
             DeviceOpsTheme {

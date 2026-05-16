@@ -24,13 +24,12 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.wear.compose.material3.*
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.material3.*
 import androidx.wear.input.RemoteInputIntentHelper
 import com.android.deviceops.data.AppFilter
 import com.android.deviceops.data.AppInfo
-import com.android.deviceops.ui.theme.*
 import com.android.deviceops.viewmodel.ManageAppsViewModel
 
 private const val KEY_SEARCH = "search_query"
@@ -51,7 +50,7 @@ fun ManageAppsScreen(
     val columnState   = rememberTransformingLazyColumnState()
 
     val searchLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
+        ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val bundle = RemoteInput.getResultsFromIntent(result.data)
@@ -65,39 +64,30 @@ fun ManageAppsScreen(
             state = columnState,
             modifier = Modifier
                 .fillMaxSize()
-                .background(Background),
+                .background(MaterialTheme.colorScheme.background),
             horizontalAlignment = Alignment.CenterHorizontally,
             contentPadding = PaddingValues(vertical = 24.dp)
         ) {
-            // ── Search button ──────────────────────────────────────────────
+            // 搜索按钮
             item {
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(SearchIconBg)
-                        .clickable {
-                            val remoteInput = RemoteInput
-                                .Builder(KEY_SEARCH)
-                                .setLabel("搜索应用")
-                                .build()
-                            val intent = RemoteInputIntentHelper.createActionRemoteInputIntent()
-                            RemoteInputIntentHelper.putRemoteInputsExtra(intent, listOf(remoteInput))
-                            searchLauncher.launch(intent)
-                        },
-                    contentAlignment = Alignment.Center
+                IconButton(
+                    onClick = {
+                        val remoteInput = RemoteInput.Builder(KEY_SEARCH)
+                            .setLabel("搜索应用").build()
+                        val intent = RemoteInputIntentHelper.createActionRemoteInputIntent()
+                        RemoteInputIntentHelper.putRemoteInputsExtra(intent, listOf(remoteInput))
+                        searchLauncher.launch(intent)
+                    }
                 ) {
                     Icon(
-                        imageVector        = Icons.Filled.Search,
-                        contentDescription = "搜索",
-                        tint               = PrimaryText,
-                        modifier           = Modifier.size(24.dp)
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = "搜索"
                     )
                 }
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(4.dp))
             }
 
-            // ── Stats / filter chip ────────────────────────────────────────
+            // 筛选 chip
             item {
                 val mainLabel = when (filter) {
                     AppFilter.ALL    -> "已停用 $disabledCount 个应用"
@@ -109,31 +99,16 @@ fun ManageAppsScreen(
                     AppFilter.USER   -> "用户应用"
                     AppFilter.SYSTEM -> "系统应用"
                 }
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 10.dp)
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(ChipBackground)
-                        .clickable(onClick = onFilterClick)
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
-                ) {
-                    Text(
-                        text = mainLabel,
-                        color = PrimaryText,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Text(
-                        text = subLabel,
-                        color = SamsungBlue,
-                        fontSize = 11.sp
-                    )
-                }
+                Chip(
+                    onClick = onFilterClick,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+                    label          = { Text(mainLabel, fontSize = 12.sp) },
+                    secondaryLabel = { Text(subLabel, fontSize = 11.sp) }
+                )
                 Spacer(Modifier.height(4.dp))
             }
 
-            // ── App list ───────────────────────────────────────────────────
+            // 应用列表
             item {
                 if (apps.isNotEmpty()) {
                     Column(
@@ -141,19 +116,16 @@ fun ManageAppsScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 10.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(ChipBackground)
+                            .background(MaterialTheme.colorScheme.surfaceContainer)
                     ) {
                         apps.forEachIndexed { idx, app ->
-                            AppRow(
-                                app     = app,
-                                onClick = { onAppClick(app.packageName) }
-                            )
+                            AppRow(app = app, onClick = { onAppClick(app.packageName) })
                             if (idx < apps.lastIndex) {
                                 Spacer(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(0.5.dp)
-                                        .background(DividerColor)
+                                        .background(MaterialTheme.colorScheme.outlineVariant)
                                 )
                             }
                         }
@@ -173,23 +145,17 @@ private fun AppRow(app: AppInfo, onClick: () -> Unit) {
             .padding(horizontal = 12.dp, vertical = 9.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val bmp = remember(app.packageName) {
-            app.icon.toBitmap(48, 48).asImageBitmap()
-        }
+        val bmp = remember(app.packageName) { app.icon.toBitmap(48, 48).asImageBitmap() }
         Image(
-            bitmap             = bmp,
+            bitmap = bmp,
             contentDescription = app.label,
-            modifier = Modifier
-                .size(36.dp)
-                .clip(CircleShape)
+            modifier = Modifier.size(36.dp).clip(CircleShape)
         )
-
         Spacer(Modifier.width(10.dp))
-
         Column(verticalArrangement = Arrangement.Center) {
             Text(
                 text       = app.label,
-                color      = PrimaryText,
+                color      = MaterialTheme.colorScheme.onSurface,
                 fontSize   = 13.sp,
                 fontWeight = FontWeight.Medium,
                 maxLines   = 1
@@ -199,14 +165,14 @@ private fun AppRow(app: AppInfo, onClick: () -> Unit) {
                     val m = app.countdownSeconds / 60
                     val s = app.countdownSeconds % 60
                     Text(
-                        text     = "停用-$m:${s.toString().padStart(2, '0')}",
-                        color    = DisabledRed,
+                        "停用-$m:${s.toString().padStart(2, '0')}",
+                        color    = MaterialTheme.colorScheme.error,
                         fontSize = 11.sp
                     )
                 }
                 app.isDisabled -> Text(
-                    text     = "已停用",
-                    color    = DisabledRed,
+                    "已停用",
+                    color    = MaterialTheme.colorScheme.error,
                     fontSize = 11.sp
                 )
                 else -> {}

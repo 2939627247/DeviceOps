@@ -11,17 +11,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.wear.compose.material3.*
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
-import com.android.deviceops.ui.theme.*
+import androidx.wear.compose.material3.*
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import com.android.deviceops.viewmodel.HttpProxyViewModel
 
 @Composable
@@ -38,38 +36,35 @@ fun HttpProxyScreen(
     val hasChanges by vm.hasChanges.collectAsStateWithLifecycle()
 
     val columnState = rememberTransformingLazyColumnState()
-    val inputColor  = if (isSaved) InputTextSaved else InputTextActive
+    val inputColor  = if (isSaved)
+        MaterialTheme.colorScheme.onSurfaceVariant
+    else
+        MaterialTheme.colorScheme.onSurface
 
     ScreenScaffold(scrollState = columnState) {
         TransformingLazyColumn(
             state = columnState,
             modifier = Modifier
                 .fillMaxSize()
-                .background(Background),
+                .background(MaterialTheme.colorScheme.background),
             horizontalAlignment = Alignment.CenterHorizontally,
             contentPadding = PaddingValues(vertical = 28.dp)
         ) {
             item {
-                Text(
-                    text = "Set global HTTP proxy",
-                    color = PrimaryText,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(bottom = 10.dp)
-                )
+                ListHeader { Text("HTTP 代理", fontSize = 15.sp) }
             }
 
             item {
                 Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)) {
                     Text(
-                        text = "Host",
-                        color = SecondaryText,
+                        "主机",
+                        color    = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 11.sp,
                         modifier = Modifier.padding(start = 4.dp, bottom = 3.dp)
                     )
-                    ProxyInputField(
+                    ProxyField(
                         value       = host,
-                        onValue     = { vm.setHost(it) },
+                        onValue     = vm::setHost,
                         placeholder = "输入主机地址",
                         textColor   = inputColor,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
@@ -80,14 +75,14 @@ fun HttpProxyScreen(
             item {
                 Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)) {
                     Text(
-                        text = "Port",
-                        color = SecondaryText,
+                        "端口",
+                        color    = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 11.sp,
                         modifier = Modifier.padding(start = 4.dp, bottom = 3.dp)
                     )
-                    ProxyInputField(
+                    ProxyField(
                         value       = port,
-                        onValue     = { vm.setPort(it) },
+                        onValue     = vm::setPort,
                         placeholder = "0 – 65535",
                         textColor   = inputColor,
                         keyboardOptions = KeyboardOptions(
@@ -101,23 +96,10 @@ fun HttpProxyScreen(
             item {
                 Spacer(Modifier.height(10.dp))
                 Button(
-                    onClick = {
-                        if (hasChanges) {
-                            vm.save(context)
-                            onBack()
-                        }
-                    },
-                    enabled = hasChanges,
-                    modifier = Modifier
-                        .width(150.dp)
-                        .height(48.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor         = ButtonActive,
-                        disabledContainerColor = ButtonInactive,
-                        contentColor           = PrimaryText,
-                        disabledContentColor   = PrimaryText
-                    ),
-                    shape = RoundedCornerShape(24.dp)
+                    onClick = { if (hasChanges) { vm.save(context); onBack() } },
+                    enabled  = hasChanges,
+                    modifier = Modifier.width(140.dp).height(48.dp),
+                    shape    = RoundedCornerShape(24.dp)
                 ) {
                     Text("确定", fontSize = 16.sp)
                 }
@@ -127,13 +109,15 @@ fun HttpProxyScreen(
 }
 
 @Composable
-private fun ProxyInputField(
+private fun ProxyField(
     value: String,
     onValue: (String) -> Unit,
     placeholder: String,
     textColor: androidx.compose.ui.graphics.Color,
     keyboardOptions: KeyboardOptions,
 ) {
+    val surface = MaterialTheme.colorScheme.surfaceContainer
+    val hint    = MaterialTheme.colorScheme.onSurfaceVariant
     BasicTextField(
         value           = value,
         onValueChange   = onValue,
@@ -143,12 +127,10 @@ private fun ProxyInputField(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
-            .background(InputBoxBg)
+            .background(surface)
             .padding(horizontal = 12.dp, vertical = 11.dp),
         decorationBox = { inner ->
-            if (value.isEmpty()) {
-                Text(text = placeholder, color = SecondaryText, fontSize = 14.sp)
-            }
+            if (value.isEmpty()) Text(placeholder, color = hint, fontSize = 14.sp)
             inner()
         }
     )

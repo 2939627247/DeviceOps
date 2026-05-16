@@ -20,12 +20,6 @@ import com.android.deviceops.ui.theme.PrimaryText
 
 private const val LONG_PRESS_THRESHOLD_MS = 790L
 
-/**
- * Disguise screen — appears identical to a Samsung "watch not connected" error.
- *
- * • Short press (< 790 ms) → exits the application.
- * • Long press (≥ 790 ms)  → navigates to [MainScreen].
- */
 @Composable
 fun DisguiseScreen(
     onShortPress: () -> Unit,
@@ -56,7 +50,6 @@ fun DisguiseScreen(
 
                 Spacer(Modifier.weight(1f))
 
-                // ── Confirm button ──────────────────────────────────────────
                 Box(
                     modifier = Modifier
                         .width(164.dp)
@@ -78,11 +71,7 @@ fun DisguiseScreen(
                         },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "确定",
-                        color = PrimaryText,
-                        fontSize = 16.sp
-                    )
+                    Text(text = "确定", color = PrimaryText, fontSize = 16.sp)
                 }
 
                 Spacer(Modifier.height(40.dp))

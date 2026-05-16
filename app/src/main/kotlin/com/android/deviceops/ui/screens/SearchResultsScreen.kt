@@ -20,11 +20,10 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.wear.compose.material3.*
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.material3.*
 import com.android.deviceops.data.AppInfo
-import com.android.deviceops.ui.theme.*
 import com.android.deviceops.viewmodel.ManageAppsViewModel
 
 @Composable
@@ -48,28 +47,26 @@ fun SearchResultsScreen(
             state = columnState,
             modifier = Modifier
                 .fillMaxSize()
-                .background(Background),
+                .background(MaterialTheme.colorScheme.background),
             horizontalAlignment = Alignment.CenterHorizontally,
             contentPadding = PaddingValues(vertical = 24.dp)
         ) {
             item {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(bottom = 10.dp)
-                ) {
-                    Icon(
-                        imageVector        = Icons.Filled.Search,
-                        contentDescription = null,
-                        tint               = SecondaryText,
-                        modifier           = Modifier.size(16.dp)
-                    )
-                    Spacer(Modifier.width(4.dp))
-                    Text(text = "\"$query\"", color = SecondaryText, fontSize = 12.sp)
+                ListHeader {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.Search, contentDescription = null, modifier = Modifier.size(14.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text("\"$query\"", fontSize = 12.sp)
+                    }
                 }
             }
 
             if (results.isEmpty()) item {
-                Text("未找到应用", color = SecondaryText, fontSize = 13.sp)
+                Text(
+                    "未找到应用",
+                    color    = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 13.sp
+                )
             }
 
             if (results.isNotEmpty()) item {
@@ -78,19 +75,16 @@ fun SearchResultsScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 10.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(ChipBackground)
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
                 ) {
                     results.forEachIndexed { idx, app ->
-                        SearchAppRow(
-                            app     = app,
-                            onClick = { onAppClick(app.packageName) }
-                        )
+                        SearchAppRow(app = app, onClick = { onAppClick(app.packageName) })
                         if (idx < results.lastIndex) {
                             Spacer(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(0.5.dp)
-                                    .background(DividerColor)
+                                    .background(MaterialTheme.colorScheme.outlineVariant)
                             )
                         }
                     }
@@ -111,17 +105,15 @@ private fun SearchAppRow(app: AppInfo, onClick: () -> Unit) {
     ) {
         val bmp = remember(app.packageName) { app.icon.toBitmap(48, 48).asImageBitmap() }
         Image(
-            bitmap             = bmp,
+            bitmap = bmp,
             contentDescription = app.label,
-            modifier = Modifier
-                .size(36.dp)
-                .clip(CircleShape)
+            modifier = Modifier.size(36.dp).clip(CircleShape)
         )
         Spacer(Modifier.width(10.dp))
         Column {
             Text(
-                text       = app.label,
-                color      = PrimaryText,
+                app.label,
+                color      = MaterialTheme.colorScheme.onSurface,
                 fontSize   = 13.sp,
                 fontWeight = FontWeight.Medium,
                 maxLines   = 1
@@ -131,12 +123,16 @@ private fun SearchAppRow(app: AppInfo, onClick: () -> Unit) {
                     val m = app.countdownSeconds / 60
                     val s = app.countdownSeconds % 60
                     Text(
-                        text     = "停用-$m:${s.toString().padStart(2, '0')}",
-                        color    = DisabledRed,
+                        "停用-$m:${s.toString().padStart(2, '0')}",
+                        color    = MaterialTheme.colorScheme.error,
                         fontSize = 11.sp
                     )
                 }
-                app.isDisabled -> Text("已停用", color = DisabledRed, fontSize = 11.sp)
+                app.isDisabled -> Text(
+                    "已停用",
+                    color    = MaterialTheme.colorScheme.error,
+                    fontSize = 11.sp
+                )
                 else -> {}
             }
         }
