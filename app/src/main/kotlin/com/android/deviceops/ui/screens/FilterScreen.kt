@@ -26,9 +26,7 @@ import com.android.deviceops.viewmodel.ManageAppsViewModel
 fun FilterScreen(onBack: () -> Unit, vm: ManageAppsViewModel = viewModel()) {
     val current     by vm.filter.collectAsStateWithLifecycle()
     val columnState = rememberTransformingLazyColumnState()
-    val options     = listOf(AppFilter.ALL to "全部应用",
-                             AppFilter.USER to "用户应用",
-                             AppFilter.SYSTEM to "系统应用")
+    val options = listOf(AppFilter.ALL to "全部应用", AppFilter.USER to "用户应用", AppFilter.SYSTEM to "系统应用")
 
     ScreenScaffold(scrollState = columnState) {
         TransformingLazyColumn(
@@ -39,14 +37,12 @@ fun FilterScreen(onBack: () -> Unit, vm: ManageAppsViewModel = viewModel()) {
         ) {
             item {
                 Text("筛选方式", color = TextPrimary, fontSize = 15.sp,
-                    fontWeight = FontWeight.W500,
-                    modifier = Modifier.padding(bottom = 12.dp))
+                    fontWeight = FontWeight.W500, modifier = Modifier.padding(bottom = 12.dp))
             }
             item {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp)
+                        .fillMaxWidth().padding(horizontal = 12.dp)
                         .background(CardBg, RoundedCornerShape(14.dp))
                 ) {
                     options.forEachIndexed { idx, (filter, label) ->
@@ -55,10 +51,8 @@ fun FilterScreen(onBack: () -> Unit, vm: ManageAppsViewModel = viewModel()) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable { vm.setFilter(filter); onBack() }
-                                .background(
-                                    if (isSelected) Brand.copy(alpha = 0.15f)
-                                    else androidx.compose.ui.graphics.Color.Transparent
-                                )
+                                .background(if (isSelected) Brand.copy(alpha = 0.15f)
+                                            else androidx.compose.ui.graphics.Color.Transparent)
                                 .padding(horizontal = 16.dp, vertical = 13.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {

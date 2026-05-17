@@ -28,8 +28,10 @@ import com.android.deviceops.ui.theme.*
 import com.android.deviceops.viewmodel.ManageAppsViewModel
 
 @Composable
-fun SearchResultsScreen(query: String, onAppClick: (String) -> Unit,
-                        vm: ManageAppsViewModel = viewModel()) {
+fun SearchResultsScreen(
+    query: String, onAppClick: (String) -> Unit,
+    vm: ManageAppsViewModel = viewModel()
+) {
     val context = LocalContext.current
     LaunchedEffect(Unit) { vm.loadApps(context) }
 
@@ -49,10 +51,10 @@ fun SearchResultsScreen(query: String, onAppClick: (String) -> Unit,
             item {
                 Row(verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(bottom = 10.dp)) {
-                    Icon(Icons.Filled.Search, null, tint = TextSecondary,
+                    Icon(Icons.Filled.Search, null, tint = TextTertiary,
                         modifier = Modifier.size(14.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text("\"$query\"", color = TextSecondary, fontSize = 12.sp)
+                    Text("\"$query\"", color = TextTertiary, fontSize = 12.sp)
                 }
             }
             if (results.isEmpty()) item {
@@ -61,10 +63,8 @@ fun SearchResultsScreen(query: String, onAppClick: (String) -> Unit,
             if (results.isNotEmpty()) item {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp)
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(CardBg)
+                        .fillMaxWidth().padding(horizontal = 12.dp)
+                        .clip(RoundedCornerShape(14.dp)).background(CardBg)
                 ) {
                     results.forEachIndexed { idx, app ->
                         SearchRow(app = app, onClick = { onAppClick(app.packageName) })

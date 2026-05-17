@@ -35,7 +35,7 @@ fun HttpProxyScreen(onBack: () -> Unit, vm: HttpProxyViewModel = viewModel()) {
     val isSaved    by vm.isSaved.collectAsStateWithLifecycle()
     val hasChanges by vm.hasChanges.collectAsStateWithLifecycle()
     val columnState = rememberTransformingLazyColumnState()
-    val textColor   = if (isSaved) TextSecondary else TextPrimary
+    val inputColor  = if (isSaved) TextSecondary else TextPrimary
 
     ScreenScaffold(scrollState = columnState) {
         TransformingLazyColumn(
@@ -46,25 +46,25 @@ fun HttpProxyScreen(onBack: () -> Unit, vm: HttpProxyViewModel = viewModel()) {
         ) {
             item {
                 Text("HTTP 代理", color = TextPrimary, fontSize = 15.sp,
-                    fontWeight = FontWeight.W500,
-                    modifier = Modifier.padding(bottom = 12.dp))
+                    fontWeight = FontWeight.W500, modifier = Modifier.padding(bottom = 12.dp))
             }
             item {
-                Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    ProxyField("主机", host, vm::setHost, textColor, "输入主机地址",
-                        KeyboardOptions(imeAction = ImeAction.Next))
-                    ProxyField("端口", port, vm::setPort, textColor, "0 – 65535",
-                        KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done))
+                    ProxyField("主机", host, "输入主机地址", inputColor,
+                        KeyboardOptions(imeAction = ImeAction.Next)) { vm.setHost(it) }
+                    ProxyField("端口", port, "0 – 65535", inputColor,
+                        KeyboardOptions(keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done)) { vm.setPort(it) }
                 }
             }
             item {
                 Spacer(Modifier.height(12.dp))
                 Button(
                     onClick = { if (hasChanges) { vm.save(context); onBack() } },
-                    enabled  = hasChanges,
+                    enabled = hasChanges,
                     modifier = Modifier.width(140.dp).height(48.dp),
-                    shape    = RoundedCornerShape(24.dp)
+                    shape = RoundedCornerShape(24.dp)
                 ) {
                     Text("确定", fontSize = 16.sp, textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth())
@@ -76,9 +76,9 @@ fun HttpProxyScreen(onBack: () -> Unit, vm: HttpProxyViewModel = viewModel()) {
 
 @Composable
 private fun ProxyField(
-    label: String, value: String, onValue: (String) -> Unit,
+    label: String, value: String, placeholder: String,
     textColor: androidx.compose.ui.graphics.Color,
-    placeholder: String, keyboardOptions: KeyboardOptions
+    keyboardOptions: KeyboardOptions, onValue: (String) -> Unit
 ) {
     Column {
         Text(label, color = TextSecondary, fontSize = 11.sp,
