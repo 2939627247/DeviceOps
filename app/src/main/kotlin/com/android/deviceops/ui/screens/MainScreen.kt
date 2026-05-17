@@ -32,7 +32,7 @@ private val ThumbOn    = Color(0xFF0D47A1)
 private val IconOn     = Color(0xFFD3E3FD)
 private val TrackOff   = Color(0xFF333537)
 private val ThumbOff   = Color(0xFF8E918F)
-private val IconOff    = Color(0xFF5F6368)
+private val IconOff    = Color(0xFF333537)
 private val CardBg     = Color(0xFF202124)
 private val DividerCol = Color(0xFF4D4D52)
 
