@@ -63,7 +63,7 @@ fun MainScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = "DeviceOps",
+                    text = "Device Ops",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onBackground,
@@ -72,7 +72,6 @@ fun MainScreen(
 
                 SplitCard(
                     label = "HTTP 代理",
-                    secondary = if (proxyEnabled) "已启用" else "未启用",
                     checked = proxyEnabled,
                     onContainerClick = onHttpProxyClick,
                     onToggle = { vm.toggleProxy(context) }
@@ -80,7 +79,6 @@ fun MainScreen(
 
                 SplitCard(
                     label = "管理停用应用",
-                    secondary = if (manageEnabled) "已启用" else "未启用",
                     checked = manageEnabled,
                     onContainerClick = onManageAppsClick,
                     onToggle = { vm.toggleManageApps(context) }
@@ -94,7 +92,6 @@ fun MainScreen(
 @Composable
 private fun SplitCard(
     label: String,
-    secondary: String,
     checked: Boolean,
     onContainerClick: () -> Unit,
     onToggle: () -> Unit,
@@ -117,7 +114,6 @@ private fun SplitCard(
             verticalArrangement = Arrangement.Center
         ) {
             Text(label, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-            Text(secondary, color = Color(0xFFB0B0B8), fontSize = 11.sp)
         }
 
         // 视觉分隔线（仅视觉，不拦截事件）
