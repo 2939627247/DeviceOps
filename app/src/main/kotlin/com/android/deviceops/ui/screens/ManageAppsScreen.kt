@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -104,17 +103,12 @@ fun ManageAppsScreen(
                             .clickable(onClick = onFilterClick),
                         contentAlignment = Alignment.Center
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Icon(Icons.Filled.FilterList, contentDescription = "筛选",
-                                tint = TextSecondary, modifier = Modifier.size(18.dp))
-                            val filterLabel = when (filter) {
-                                AppFilter.ALL -> "全部"
-                                AppFilter.USER -> "用户"
-                                AppFilter.SYSTEM -> "系统"
+                        val filterLabel = when (filter) {
+                                AppFilter.ALL -> "全部应用"
+                                AppFilter.USER -> "用户应用"
+                                AppFilter.SYSTEM -> "系统应用"
                             }
                             Text(filterLabel, color = TextSecondary, fontSize = 12.sp)
-                        }
                     }
                 }
                 Spacer(Modifier.height(4.dp))
