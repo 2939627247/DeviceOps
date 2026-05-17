@@ -218,8 +218,8 @@ private fun ToggleSwitch(checked: Boolean, onToggle: () -> Unit) {
     }
 
     var isPressed  by remember { mutableStateOf(false) }
-    val thumbSize  by animateDpAsState(if (isPressed) 23.dp else 27.dp, tween(200), "sz")
-    val feedAlpha  by animateFloatAsState(if (isPressed) 0.12f else 0f,  tween(200), "fa")
+    val thumbSize  by animateDpAsState(if (isPressed) 23.dp else 27.dp, tween(200), label = "sz")
+    val feedAlpha  by animateFloatAsState(if (isPressed) 0.12f else 0f,  tween(200), label = "fa")
 
     val ratio      = thumbAnim.value
     val thumbOff   = with(density) { (ratio * maxPx).toDp() }
