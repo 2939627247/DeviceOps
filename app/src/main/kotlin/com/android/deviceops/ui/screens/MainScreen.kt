@@ -31,6 +31,10 @@ import androidx.wear.compose.material3.Text
 import com.android.deviceops.ui.theme.*
 import com.android.deviceops.viewmodel.MainViewModel
 import kotlin.math.abs
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.animation.core.Animatable
 import kotlin.math.roundToInt
 
 // ── 开关轨道颜色插值端点（匹配 HTML 规范） ────────────────────────────────
@@ -62,7 +66,7 @@ fun MainScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
@@ -129,8 +133,8 @@ private fun SplitCard(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(84.dp)
-            .clip(RoundedCornerShape(42.dp))
+            .height(76.dp)
+            .clip(RoundedCornerShape(38.dp))
             .background(cardBg),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -187,118 +191,107 @@ private fun SplitCard(
  *  按压：滑块缩至 23dp + 白色反馈光圈（opacity 0.12）
  *  拖拽：实时插值轨道颜色（Off rgb(99,99,104) ↔ On rgb(66,105,255)）
  */
+/**
+ * 自定义开关：使用 Animatable 控制动画，避免拖拽结束时从后台值跳变（抽搐）。
+ * 拖拽过程 snapTo 实时同步；松手后从当前位置 animateTo 终点。
+ */
 @Composable
 private fun ToggleSwitch(checked: Boolean, onToggle: () -> Unit) {
-    val density      = LocalDensity.current
-    val maxOffsetDp  = 24.dp
-    val maxOffsetPx  = with(density) { maxOffsetDp.toPx() }
+    val density     = LocalDensity.current
+    val maxPx       = with(density) { 24.dp.toPx() }
+    val scope       = rememberCoroutineScope()
+    val latest      = rememberUpdatedState(checked)   // 永远最新值，不重建 gesture
 
-    var isDragging   by remember { mutableStateOf(false) }
-    var isPressed    by remember { mutableStateOf(false) }
-    var dragRatio    by remember { mutableFloatStateOf(if (checked) 1f else 0f) }
+    // Animatable：完全手动控制，不自动追踪 checked 变化
+    val thumbAnim   = remember { Animatable(if (checked) 1f else 0f) }
+    val trackAnim   = remember { Animatable(if (checked) 1f else 0f) }
 
-    // 非拖拽时：带弹性曲线的位移动画
-    val animOffset by animateDpAsState(
-        targetValue   = if (checked) maxOffsetDp else 0.dp,
-        animationSpec = spring(dampingRatio = 0.75f, stiffness = 600f),
-        label         = "offset"
-    )
+    // 仅当外部改变 checked（不是从拖拽触发）时才做动画
+    var gestureJustToggled by remember { mutableStateOf(false) }
+    LaunchedEffect(checked) {
+        if (!gestureJustToggled) {
+            val t = if (checked) 1f else 0f
+            launch { thumbAnim.animateTo(t, spring(0.75f, 600f)) }
+            launch { trackAnim.animateTo(t, tween(250)) }
+        }
+        gestureJustToggled = false
+    }
 
-    // 非拖拽时：轨道颜色过渡
-    val animTrack by animateColorAsState(
-        targetValue   = if (checked) TrackOn else TrackOff,
-        animationSpec = tween(250),
-        label         = "track"
-    )
+    var isPressed  by remember { mutableStateOf(false) }
+    val thumbSize  by animateDpAsState(if (isPressed) 23.dp else 27.dp, tween(200), "sz")
+    val feedAlpha  by animateFloatAsState(if (isPressed) 0.12f else 0f,  tween(200), "fa")
 
-    val displayTrack: Color = if (isDragging) lerpTrackColor(dragRatio) else animTrack
-    val displayOffset: Dp   = if (isDragging) {
-        with(density) { (dragRatio * maxOffsetPx).toDp() }
-    } else animOffset
-
-    // 按压时滑块缩小：27dp → 23dp
-    val thumbSize by animateDpAsState(
-        targetValue   = if (isPressed) 23.dp else 27.dp,
-        animationSpec = tween(200),
-        label         = "thumb"
-    )
-
-    // 按压反馈光圈透明度
-    val feedbackAlpha by animateFloatAsState(
-        targetValue   = if (isPressed) 0.12f else 0f,
-        animationSpec = tween(200),
-        label         = "feedback"
-    )
-
-    // 滑块中心始终垂直居中于轨道（top = (34dp - thumbSize) / 2）
-    // 水平位置 = 3.5dp（起始边距）+ 偏移 + 因尺寸变化的居中补偿
-    val thumbLeft = 3.5.dp + displayOffset + (27.dp - thumbSize) / 2
-    val thumbTop  = (34.dp - thumbSize) / 2
+    val ratio      = thumbAnim.value
+    val thumbOff   = with(density) { (ratio * maxPx).toDp() }
+    val thumbLeft  = 3.5.dp + thumbOff + (27.dp - thumbSize) / 2
+    val thumbTop   = (34.dp - thumbSize) / 2
+    val trackColor = lerpTrackColor(trackAnim.value)
 
     Box(
         modifier = Modifier
             .width(58.dp)
             .height(34.dp)
             .clip(RoundedCornerShape(17.dp))
-            .background(displayTrack)
-            .pointerInput(checked) {
+            .background(trackColor)
+            .pointerInput(Unit) {                 // Unit：不因 checked 变化重建 gesture
                 awaitEachGesture {
-                    // ── 按下 ──────────────────────────────────────────────
-                    val down = awaitFirstDown(requireUnconsumed = false)
+                    val down   = awaitFirstDown(requireUnconsumed = false)
                     isPressed  = true
-                    isDragging = false
-                    val startX     = down.position.x
-                    val startRatio = if (checked) 1f else 0f
-                    dragRatio      = startRatio
+                    val startX = down.position.x
+                    val startR = thumbAnim.value
+                    // 按下时停止正在运行的动画
+                    scope.launch { thumbAnim.stop(); trackAnim.stop() }
 
-                    // ── 等待移动或抬起 ────────────────────────────────────
                     while (true) {
                         val event  = awaitPointerEvent()
                         val change = event.changes.firstOrNull() ?: break
 
                         if (!change.pressed) {
-                            // 松手：判断是点击还是拖拽
-                            val delta = change.position.x - startX
-                            val newChecked = if (abs(delta) < with(density) { 4.dp.toPx() }) {
-                                !checked            // 轻触 → 取反
-                            } else {
-                                dragRatio > 0.5f    // 拖拽 → 过半线判定
-                            }
+                            // ── 松手 ──────────────────────────────────────
+                            val delta  = change.position.x - startX
+                            val isTap  = abs(delta) < with(density) { 4.dp.toPx() }
+                            val newOn  = if (isTap) !latest.value else thumbAnim.value > 0.5f
+                            val target = if (newOn) 1f else 0f
                             isPressed  = false
-                            isDragging = false
-                            if (newChecked != checked) onToggle()
+
+                            // 从当前位置动画到终点（无跳变）
+                            scope.launch {
+                                launch { thumbAnim.animateTo(target, spring(0.75f, 600f)) }
+                                launch { trackAnim.animateTo(target, tween(250)) }
+                            }
+                            if (newOn != latest.value) {
+                                gestureJustToggled = true
+                                onToggle()
+                            }
                             break
                         }
 
+                        // ── 拖拽中：snapTo 实时同步，不产生后台动画 ──────
                         val delta = change.position.x - startX
-                        if (abs(delta) > with(density) { 4.dp.toPx() }) {
-                            isDragging = true
-                            change.consume()
-                        }
-                        if (isDragging) {
-                            dragRatio = (startRatio + delta / maxOffsetPx).coerceIn(0f, 1f)
+                        if (abs(delta) > with(density) { 4.dp.toPx() }) change.consume()
+                        val newR = (startR + delta / maxPx).coerceIn(0f, 1f)
+                        scope.launch {
+                            thumbAnim.snapTo(newR)
+                            trackAnim.snapTo(newR)
                         }
                     }
                 }
             }
     ) {
-        // 按压反馈光圈（居中于滑块）
-        if (feedbackAlpha > 0f) {
+        // 按压反馈光圈
+        if (feedAlpha > 0f) {
             Box(
                 modifier = Modifier
                     .offset(x = thumbLeft - 13.5.dp, y = thumbTop - 13.5.dp)
-                    .size(54.dp)
-                    .clip(CircleShape)
-                    .background(White.copy(alpha = feedbackAlpha))
+                    .size(54.dp).clip(CircleShape)
+                    .background(White.copy(alpha = feedAlpha))
             )
         }
-
         // 滑块
         Box(
             modifier = Modifier
                 .offset(x = thumbLeft, y = thumbTop)
-                .size(thumbSize)
-                .clip(CircleShape)
+                .size(thumbSize).clip(CircleShape)
                 .background(Thumb)
         )
     }
