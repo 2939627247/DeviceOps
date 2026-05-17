@@ -34,7 +34,6 @@ class MainActivity : ComponentActivity() {
         // 禁用所有窗口动画
         window.setWindowAnimations(0)
         super.onCreate(savedInstanceState)
-        supportActionBar?.hide()
         setContent {
             DeviceOpsTheme {
                 AppScaffold {
