@@ -1,7 +1,6 @@
 package com.android.deviceops.ui.theme
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.wear.compose.material3.ColorScheme
 import androidx.wear.compose.material3.MaterialTheme
 
@@ -9,32 +8,32 @@ import androidx.wear.compose.material3.MaterialTheme
 fun DeviceOpsTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = ColorScheme(
-            primary               = Color(0xFF4F80FF),
-            primaryDim            = Color(0xFF3A6AE0),
-            onPrimary             = Color(0xFFFFFFFF),
-            primaryContainer      = Color(0xFF1A3A7A),
-            onPrimaryContainer    = Color(0xFFD8E2FF),
-            secondary             = Color(0xFF636368),
-            secondaryDim          = Color(0xFF4A4A50),
-            onSecondary           = Color(0xFFFFFFFF),
-            secondaryContainer    = Color(0xFF2A2A2E),
-            onSecondaryContainer  = Color(0xFFE0E0E6),
-            tertiary              = Color(0xFF636368),
-            tertiaryDim           = Color(0xFF4A4A50),
-            onTertiary            = Color(0xFFFFFFFF),
-            tertiaryContainer     = Color(0xFF2A2A2E),
-            onTertiaryContainer   = Color(0xFFE0E0E6),
-            onSurface             = Color(0xFFE6E1E5),
-            onSurfaceVariant      = Color(0xFFB0B0B8),
-            surfaceContainer      = Color(0xFF202124),
-            surfaceContainerLow   = Color(0xFF1A1A1C),
-            surfaceContainerHigh  = Color(0xFF303035),
-            background            = Color(0xFF000000),
-            onBackground          = Color(0xFFFFFFFF),
-            error                 = Color(0xFFCF6679),
-            onError               = Color(0xFF000000),
-            outline               = Color(0xFF4D4D52),
-            outlineVariant        = Color(0xFF38383C),
+            primary               = Brand,
+            primaryDim            = androidx.compose.ui.graphics.Color(0xFF2A4FCC),
+            onPrimary             = White,
+            primaryContainer      = androidx.compose.ui.graphics.Color(0xFF1A3A7A),
+            onPrimaryContainer    = White,
+            secondary             = TrackOff,
+            secondaryDim          = androidx.compose.ui.graphics.Color(0xFF4A4A50),
+            onSecondary           = White,
+            secondaryContainer    = CardBg,
+            onSecondaryContainer  = TextPrimary,
+            tertiary              = TrackOff,
+            tertiaryDim           = androidx.compose.ui.graphics.Color(0xFF4A4A50),
+            onTertiary            = White,
+            tertiaryContainer     = CardBg,
+            onTertiaryContainer   = TextPrimary,
+            onSurface             = TextPrimary,
+            onSurfaceVariant      = TextSecondary,
+            surfaceContainer      = CardBg,
+            surfaceContainerLow   = SurfaceLow,
+            surfaceContainerHigh  = CardBgPressed,
+            background            = Black,
+            onBackground          = TextPrimary,
+            error                 = ErrorRed,
+            onError               = White,
+            outline               = DividerCol,
+            outlineVariant        = androidx.compose.ui.graphics.Color(0xFF38383C),
         ),
         content = content
     )

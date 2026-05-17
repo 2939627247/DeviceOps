@@ -20,6 +20,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.*
+import com.android.deviceops.ui.theme.*
 import com.android.deviceops.viewmodel.ManageAppsViewModel
 
 private enum class AppMode { TEST_DISABLE, ENABLE, DISABLE }
@@ -47,25 +48,21 @@ fun AppSettingsScreen(
     val countdowns by vm.filteredApps.collectAsStateWithLifecycle()
     val liveApp    = countdowns.find { it.packageName == packageName }
     val countdown  = liveApp?.countdownSeconds
-
     val columnState = rememberTransformingLazyColumnState()
 
     ScreenScaffold(scrollState = columnState) {
         TransformingLazyColumn(
             state = columnState,
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
+            modifier = Modifier.fillMaxSize().background(Black),
             horizontalAlignment = Alignment.CenterHorizontally,
-            contentPadding = PaddingValues(vertical = 28.dp)
+            contentPadding = PaddingValues(vertical = 24.dp)
         ) {
             item {
                 Text(
-                    text = app?.label ?: packageName,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(bottom = 10.dp)
+                    app?.label ?: packageName,
+                    color = TextPrimary, fontSize = 15.sp,
+                    fontWeight = FontWeight.W500,
+                    modifier = Modifier.padding(bottom = 12.dp)
                 )
             }
 
@@ -78,29 +75,34 @@ fun AppSettingsScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 10.dp)
-                        .background(
-                            MaterialTheme.colorScheme.surfaceContainer,
-                            RoundedCornerShape(12.dp)
-                        )
+                        .padding(horizontal = 12.dp)
+                        .background(CardBg, RoundedCornerShape(14.dp))
                 ) {
                     options.forEachIndexed { idx, (mode, label) ->
-                        RadioOptionRow(
-                            label      = label,
-                            selected   = selected == mode,
-                            onSelect   = { selected = mode },
-                            showDivider = idx < options.lastIndex,
-                            primaryColor = MaterialTheme.colorScheme.primary,
-                            onSurfaceColor = MaterialTheme.colorScheme.onSurface,
-                            outlineColor = MaterialTheme.colorScheme.outlineVariant,
-                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer
-                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { selected = mode }
+                                .background(
+                                    if (selected == mode) Brand.copy(alpha = 0.15f)
+                                    else androidx.compose.ui.graphics.Color.Transparent
+                                )
+                                .padding(horizontal = 16.dp, vertical = 13.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(label, color = TextPrimary, fontSize = 14.sp,
+                                modifier = Modifier.weight(1f))
+                            RadioDot(selected = selected == mode)
+                        }
+                        if (idx < options.lastIndex) {
+                            Spacer(Modifier.fillMaxWidth().height(0.5.dp).background(DividerCol))
+                        }
                     }
                 }
             }
 
             item {
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(14.dp))
                 Button(
                     onClick = {
                         when (selected) {
@@ -113,30 +115,16 @@ fun AppSettingsScreen(
                     modifier = Modifier.width(140.dp).height(48.dp),
                     shape = RoundedCornerShape(24.dp)
                 ) {
-                    when {
+                    val label = when {
                         countdown != null -> {
-                            val m = countdown / 60
-                            val s = countdown % 60
-                            Text(
-                                "$m:${s.toString().padStart(2, '0')}",
-                                fontSize = 15.sp,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            )
+                            val m = countdown / 60; val s = countdown % 60
+                            "$m:${s.toString().padStart(2, '0')}"
                         }
-                        selected == AppMode.TEST_DISABLE -> Text(
-                            "6分钟",
-                            fontSize = 15.sp,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        else -> Text(
-                            "确定",
-                            fontSize = 16.sp,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        selected == AppMode.TEST_DISABLE -> "6分钟"
+                        else -> "确定"
                     }
+                    Text(label, fontSize = 16.sp, textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth())
                 }
             }
         }
@@ -144,63 +132,16 @@ fun AppSettingsScreen(
 }
 
 @Composable
-private fun RadioOptionRow(
-    label: String,
-    selected: Boolean,
-    onSelect: () -> Unit,
-    showDivider: Boolean,
-    primaryColor: androidx.compose.ui.graphics.Color,
-    onSurfaceColor: androidx.compose.ui.graphics.Color,
-    outlineColor: androidx.compose.ui.graphics.Color,
-    selectedContainerColor: androidx.compose.ui.graphics.Color,
-) {
-    Column {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(if (selected) selectedContainerColor else androidx.compose.ui.graphics.Color.Transparent)
-                .clickable(onClick = onSelect)
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text     = label,
-                color    = onSurfaceColor,
-                fontSize = 14.sp,
-                modifier = Modifier.weight(1f)
-            )
-            RadioCircle(selected = selected, primaryColor = primaryColor, outlineColor = outlineColor)
-        }
-        if (showDivider) {
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(0.5.dp)
-                    .background(outlineColor)
-            )
-        }
-    }
-}
-
-@Composable
-private fun RadioCircle(
-    selected: Boolean,
-    primaryColor: androidx.compose.ui.graphics.Color,
-    outlineColor: androidx.compose.ui.graphics.Color,
-) {
-    Canvas(modifier = Modifier.size(18.dp)) {
+private fun RadioDot(selected: Boolean) {
+    Canvas(Modifier.size(18.dp)) {
         val r   = size.minDimension / 2f
         val ctr = Offset(r, r)
         if (selected) {
-            drawCircle(color = primaryColor, radius = r, center = ctr)
-            drawCircle(color = androidx.compose.ui.graphics.Color.White, radius = r * 0.38f, center = ctr)
+            drawCircle(color = Brand, radius = r, center = ctr)
+            drawCircle(color = White, radius = r * 0.38f, center = ctr)
         } else {
-            drawCircle(
-                color  = outlineColor,
-                radius = r - 1.dp.toPx(),
-                center = ctr,
-                style  = Stroke(width = 1.5.dp.toPx())
-            )
+            drawCircle(color = DividerCol, radius = r - 1.dp.toPx(),
+                center = ctr, style = Stroke(1.5.dp.toPx()))
         }
     }
 }

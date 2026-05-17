@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +31,7 @@ import androidx.wear.compose.material3.*
 import androidx.wear.input.RemoteInputIntentHelper
 import com.android.deviceops.data.AppFilter
 import com.android.deviceops.data.AppInfo
+import com.android.deviceops.ui.theme.*
 import com.android.deviceops.viewmodel.ManageAppsViewModel
 
 private const val KEY_SEARCH = "search_query"
@@ -62,56 +64,79 @@ fun ManageAppsScreen(
     ScreenScaffold(scrollState = columnState) {
         TransformingLazyColumn(
             state = columnState,
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
+            modifier = Modifier.fillMaxSize().background(Black),
             horizontalAlignment = Alignment.CenterHorizontally,
-            contentPadding = PaddingValues(vertical = 24.dp)
+            contentPadding = PaddingValues(vertical = 20.dp)
         ) {
-            // 搜索按钮
+            // 工具栏：搜索 + 筛选
             item {
-                IconButton(
-                    onClick = {
-                        val remoteInput = RemoteInput.Builder(KEY_SEARCH)
-                            .setLabel("搜索应用").build()
-                        val intent = RemoteInputIntentHelper.createActionRemoteInputIntent()
-                        RemoteInputIntentHelper.putRemoteInputsExtra(intent, listOf(remoteInput))
-                        searchLauncher.launch(intent)
-                    }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.Search,
-                        contentDescription = "搜索"
-                    )
+                    // 搜索按钮
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(44.dp)
+                            .clip(RoundedCornerShape(22.dp))
+                            .background(CardBg)
+                            .clickable {
+                                val ri = RemoteInput.Builder(KEY_SEARCH).setLabel("搜索应用").build()
+                                val intent = RemoteInputIntentHelper.createActionRemoteInputIntent()
+                                RemoteInputIntentHelper.putRemoteInputsExtra(intent, listOf(ri))
+                                searchLauncher.launch(intent)
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Filled.Search, contentDescription = "搜索",
+                            tint = TextSecondary, modifier = Modifier.size(20.dp))
+                    }
+                    // 筛选按钮
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(44.dp)
+                            .clip(RoundedCornerShape(22.dp))
+                            .background(CardBg)
+                            .clickable(onClick = onFilterClick),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Icon(Icons.Filled.FilterList, contentDescription = "筛选",
+                                tint = TextSecondary, modifier = Modifier.size(18.dp))
+                            val filterLabel = when (filter) {
+                                AppFilter.ALL -> "全部"
+                                AppFilter.USER -> "用户"
+                                AppFilter.SYSTEM -> "系统"
+                            }
+                            Text(filterLabel, color = TextSecondary, fontSize = 12.sp)
+                        }
+                    }
                 }
                 Spacer(Modifier.height(4.dp))
             }
 
-            // 筛选 chip
+            // 统计信息
             item {
-                val mainLabel = when (filter) {
-                    AppFilter.ALL    -> "已停用 $disabledCount 个应用"
-                    AppFilter.USER   -> "已停用 $disabledCount 个用户应用"
-                    AppFilter.SYSTEM -> "已停用 $disabledCount 个系统应用"
-                }
-                val subLabel = when (filter) {
-                    AppFilter.ALL    -> "全部应用"
-                    AppFilter.USER   -> "用户应用"
-                    AppFilter.SYSTEM -> "系统应用"
-                }
-                Column(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 10.dp)
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(MaterialTheme.colorScheme.surfaceContainer)
-                        .clickable(onClick = onFilterClick)
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                        .padding(horizontal = 12.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(CardBg)
+                        .padding(horizontal = 14.dp, vertical = 10.dp)
                 ) {
-                    Text(mainLabel, color = MaterialTheme.colorScheme.onSurface, fontSize = 12.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Medium)
-                    Text(subLabel, color = MaterialTheme.colorScheme.primary, fontSize = 11.sp)
+                    Text(
+                        "已停用 $disabledCount 个应用",
+                        color = TextSecondary,
+                        fontSize = 12.sp
+                    )
                 }
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(6.dp))
             }
 
             // 应用列表
@@ -120,19 +145,14 @@ fun ManageAppsScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 10.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surfaceContainer)
+                            .padding(horizontal = 12.dp)
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(CardBg)
                     ) {
                         apps.forEachIndexed { idx, app ->
                             AppRow(app = app, onClick = { onAppClick(app.packageName) })
                             if (idx < apps.lastIndex) {
-                                Spacer(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(0.5.dp)
-                                        .background(MaterialTheme.colorScheme.outlineVariant)
-                                )
+                                Spacer(Modifier.fillMaxWidth().height(0.5.dp).background(DividerCol))
                             }
                         }
                     }
@@ -148,39 +168,23 @@ private fun AppRow(app: AppInfo, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 9.dp),
+            .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         val bmp = remember(app.packageName) { app.icon.toBitmap(48, 48).asImageBitmap() }
-        Image(
-            bitmap = bmp,
-            contentDescription = app.label,
-            modifier = Modifier.size(36.dp).clip(CircleShape)
-        )
+        Image(bmp, app.label, modifier = Modifier.size(34.dp).clip(CircleShape))
         Spacer(Modifier.width(10.dp))
         Column(verticalArrangement = Arrangement.Center) {
-            Text(
-                text       = app.label,
-                color      = MaterialTheme.colorScheme.onSurface,
-                fontSize   = 13.sp,
-                fontWeight = FontWeight.Medium,
-                maxLines   = 1
-            )
+            Text(app.label, color = TextPrimary, fontSize = 13.sp,
+                fontWeight = FontWeight.W500, maxLines = 1)
             when {
                 app.countdownSeconds != null -> {
                     val m = app.countdownSeconds / 60
                     val s = app.countdownSeconds % 60
-                    Text(
-                        "停用-$m:${s.toString().padStart(2, '0')}",
-                        color    = MaterialTheme.colorScheme.error,
-                        fontSize = 11.sp
-                    )
+                    Text("停用中 $m:${s.toString().padStart(2, '0')}",
+                        color = ErrorRed, fontSize = 11.sp)
                 }
-                app.isDisabled -> Text(
-                    "已停用",
-                    color    = MaterialTheme.colorScheme.error,
-                    fontSize = 11.sp
-                )
+                app.isDisabled -> Text("已停用", color = ErrorRed, fontSize = 11.sp)
                 else -> {}
             }
         }

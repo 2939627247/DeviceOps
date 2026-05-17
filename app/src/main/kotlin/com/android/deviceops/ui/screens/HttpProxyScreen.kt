@@ -11,6 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -18,15 +22,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.*
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
+import com.android.deviceops.ui.theme.*
 import com.android.deviceops.viewmodel.HttpProxyViewModel
 
 @Composable
-fun HttpProxyScreen(
-    onBack: () -> Unit,
-    vm: HttpProxyViewModel = viewModel()
-) {
+fun HttpProxyScreen(onBack: () -> Unit, vm: HttpProxyViewModel = viewModel()) {
     val context = LocalContext.current
     LaunchedEffect(Unit) { vm.init(context) }
 
@@ -34,76 +34,40 @@ fun HttpProxyScreen(
     val port       by vm.port.collectAsStateWithLifecycle()
     val isSaved    by vm.isSaved.collectAsStateWithLifecycle()
     val hasChanges by vm.hasChanges.collectAsStateWithLifecycle()
-
     val columnState = rememberTransformingLazyColumnState()
-    val inputColor  = if (isSaved)
-        MaterialTheme.colorScheme.onSurfaceVariant
-    else
-        MaterialTheme.colorScheme.onSurface
+    val textColor   = if (isSaved) TextSecondary else TextPrimary
 
     ScreenScaffold(scrollState = columnState) {
         TransformingLazyColumn(
             state = columnState,
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
+            modifier = Modifier.fillMaxSize().background(Black),
             horizontalAlignment = Alignment.CenterHorizontally,
-            contentPadding = PaddingValues(vertical = 28.dp)
+            contentPadding = PaddingValues(vertical = 24.dp)
         ) {
-
             item {
-                Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)) {
-                    Text(
-                        "主机",
-                        color    = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 11.sp,
-                        modifier = Modifier.padding(start = 4.dp, bottom = 3.dp)
-                    )
-                    ProxyField(
-                        value       = host,
-                        onValue     = vm::setHost,
-                        placeholder = "输入主机地址",
-                        textColor   = inputColor,
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
-                    )
+                Text("HTTP 代理", color = TextPrimary, fontSize = 15.sp,
+                    fontWeight = FontWeight.W500,
+                    modifier = Modifier.padding(bottom = 12.dp))
+            }
+            item {
+                Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ProxyField("主机", host, vm::setHost, textColor, "输入主机地址",
+                        KeyboardOptions(imeAction = ImeAction.Next))
+                    ProxyField("端口", port, vm::setPort, textColor, "0 – 65535",
+                        KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done))
                 }
             }
-
             item {
-                Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)) {
-                    Text(
-                        "端口",
-                        color    = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 11.sp,
-                        modifier = Modifier.padding(start = 4.dp, bottom = 3.dp)
-                    )
-                    ProxyField(
-                        value       = port,
-                        onValue     = vm::setPort,
-                        placeholder = "0 – 65535",
-                        textColor   = inputColor,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number,
-                            imeAction    = ImeAction.Done
-                        )
-                    )
-                }
-            }
-
-            item {
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(12.dp))
                 Button(
                     onClick = { if (hasChanges) { vm.save(context); onBack() } },
                     enabled  = hasChanges,
                     modifier = Modifier.width(140.dp).height(48.dp),
                     shape    = RoundedCornerShape(24.dp)
                 ) {
-                    Text(
-                        "确定",
-                        fontSize   = 16.sp,
-                        textAlign  = androidx.compose.ui.text.style.TextAlign.Center,
-                        modifier   = Modifier.fillMaxWidth()
-                    )
+                    Text("确定", fontSize = 16.sp, textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth())
                 }
             }
         }
@@ -112,28 +76,25 @@ fun HttpProxyScreen(
 
 @Composable
 private fun ProxyField(
-    value: String,
-    onValue: (String) -> Unit,
-    placeholder: String,
+    label: String, value: String, onValue: (String) -> Unit,
     textColor: androidx.compose.ui.graphics.Color,
-    keyboardOptions: KeyboardOptions,
+    placeholder: String, keyboardOptions: KeyboardOptions
 ) {
-    val surface = MaterialTheme.colorScheme.surfaceContainer
-    val hint    = MaterialTheme.colorScheme.onSurfaceVariant
-    BasicTextField(
-        value           = value,
-        onValueChange   = onValue,
-        singleLine      = true,
-        keyboardOptions = keyboardOptions,
-        textStyle = TextStyle(color = textColor, fontSize = 14.sp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(surface)
-            .padding(horizontal = 12.dp, vertical = 11.dp),
-        decorationBox = { inner ->
-            if (value.isEmpty()) Text(placeholder, color = hint, fontSize = 14.sp)
-            inner()
-        }
-    )
+    Column {
+        Text(label, color = TextSecondary, fontSize = 11.sp,
+            modifier = Modifier.padding(start = 4.dp, bottom = 4.dp))
+        BasicTextField(
+            value = value, onValueChange = onValue, singleLine = true,
+            keyboardOptions = keyboardOptions,
+            textStyle = TextStyle(color = textColor, fontSize = 14.sp),
+            modifier = Modifier.fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(CardBg)
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            decorationBox = { inner ->
+                if (value.isEmpty()) Text(placeholder, color = TextTertiary, fontSize = 14.sp)
+                inner()
+            }
+        )
+    }
 }
