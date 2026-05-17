@@ -1,6 +1,5 @@
 package com.android.deviceops.ui.screens
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -8,9 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,18 +19,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.wear.compose.material3.*
+import androidx.wear.compose.material3.ScreenScaffold
+import androidx.wear.compose.material3.Text
 import com.android.deviceops.viewmodel.MainViewModel
 import kotlin.math.roundToInt
 
-private val TrackOn    = Color(0xFFA8C7FA)
-private val ThumbOn    = Color(0xFF0D47A1)
-private val IconOn     = Color(0xFFD3E3FD)
-private val TrackOff   = Color(0xFF333537)
-private val ThumbOff   = Color(0xFF8E918F)
-private val IconOff    = Color(0xFF333537)
 private val CardBg     = Color(0xFF202124)
 private val DividerCol = Color(0xFF4D4D52)
+// 开关颜色（与概念图一致）
+private val TrackOn    = Color(0xFF4269FF)   // 蓝色轨道
+private val TrackOff   = Color(0xFF333537)   // 灰色轨道
+private val ThumbColor = Color(0xFFFFFFFF)   // 白色圆块（两态统一）
 
 @Composable
 fun MainScreen(
@@ -52,43 +47,42 @@ fun MainScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
+                .background(Color.Black),
             contentAlignment = Alignment.Center
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
+                    .padding(horizontal = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = "Device Ops",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(bottom = 4.dp)
+                    text       = "Device Ops",
+                    fontSize   = 30.sp,
+                    fontWeight = FontWeight.Bold,
+                    color      = Color.White,
+                    modifier   = Modifier.padding(bottom = 8.dp)
                 )
 
                 SplitCard(
-                    label = "HTTP 代理",
-                    checked = proxyEnabled,
+                    label            = "HTTP 代理",
+                    checked          = proxyEnabled,
                     onContainerClick = onHttpProxyClick,
-                    onToggle = { vm.toggleProxy(context) }
+                    onToggle         = { vm.toggleProxy(context) }
                 )
 
                 SplitCard(
-                    label = "管理停用应用",
-                    checked = manageEnabled,
+                    label            = "管理停用应用",
+                    checked          = manageEnabled,
                     onContainerClick = onManageAppsClick,
-                    onToggle = { vm.toggleManageApps(context) }
+                    onToggle         = { vm.toggleManageApps(context) }
                 )
             }
         }
     }
 }
 
-/** 统一圆角卡片，左侧点击跳转，右侧仅控制开关，中间一条灰细线 */
 @Composable
 private fun SplitCard(
     label: String,
@@ -104,47 +98,54 @@ private fun SplitCard(
             .height(IntrinsicSize.Min),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // 父按钮区域：点击 → 跳转二级页面
-        Column(
+        // 父按钮区域 → 点击跳转
+        Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
                 .clickable(onClick = onContainerClick)
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.Center
+                .padding(horizontal = 22.dp, vertical = 20.dp),
+            contentAlignment = Alignment.CenterStart
         ) {
-            Text(label, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            Text(
+                text       = label,
+                color      = Color.White,
+                fontSize   = 18.sp,
+                fontWeight = FontWeight.Medium
+            )
         }
 
-        // 视觉分隔线（仅视觉，不拦截事件）
+        // 细分隔线（视觉，不拦截事件）
         Spacer(
-            Modifier
+            modifier = Modifier
                 .width(1.dp)
                 .fillMaxHeight()
                 .background(DividerCol)
         )
 
-        // 开关区域：点击 → 仅切换状态，不跳转
+        // 开关区域 → 仅切换状态
         Box(
             modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 14.dp),
+                .padding(horizontal = 22.dp, vertical = 20.dp),
             contentAlignment = Alignment.Center
         ) {
-            CustomSwitch(checked = checked, onToggle = onToggle)
+            SlideSwitch(checked = checked, onToggle = onToggle)
         }
     }
 }
 
 @Composable
-private fun CustomSwitch(checked: Boolean, onToggle: () -> Unit) {
-    val trackColor by animateColorAsState(if (checked) TrackOn else TrackOff, tween(200), label = "track")
-    val thumbColor by animateColorAsState(if (checked) ThumbOn else ThumbOff, tween(200), label = "thumb")
-    val iconColor  by animateColorAsState(if (checked) IconOn  else IconOff,  tween(200), label = "icon")
-    val thumbFrac  by animateFloatAsState(if (checked) 1f else 0f, tween(200), label = "frac")
+private fun SlideSwitch(checked: Boolean, onToggle: () -> Unit) {
+    val trackColor = if (checked) TrackOn else TrackOff
+    val thumbFrac  by animateFloatAsState(
+        targetValue   = if (checked) 1f else 0f,
+        animationSpec = tween(220),
+        label         = "thumb"
+    )
 
-    val trackW = 52.dp
-    val trackH = 30.dp
-    val thumbD = 26.dp
+    val trackW = 56.dp
+    val trackH = 32.dp
+    val thumbD = 28.dp
     val pad    = 2.dp
 
     Box(
@@ -158,25 +159,17 @@ private fun CustomSwitch(checked: Boolean, onToggle: () -> Unit) {
         Box(
             modifier = Modifier
                 .layout { measurable, constraints ->
-                    val placeable = measurable.measure(constraints)
-                    layout(placeable.width, placeable.height) {
+                    val p = measurable.measure(constraints)
+                    layout(p.width, p.height) {
                         val travel = (trackW - thumbD - pad * 2).toPx()
                         val x = (pad.toPx() + travel * thumbFrac).roundToInt()
                         val y = ((trackH - thumbD) / 2).toPx().roundToInt()
-                        placeable.placeRelative(x, y)
+                        p.placeRelative(x, y)
                     }
                 }
                 .size(thumbD)
                 .clip(CircleShape)
-                .background(thumbColor),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = if (checked) Icons.Filled.Check else Icons.Filled.Close,
-                contentDescription = null,
-                tint = iconColor,
-                modifier = Modifier.size(14.dp)
-            )
-        }
+                .background(ThumbColor)
+        )
     }
 }
