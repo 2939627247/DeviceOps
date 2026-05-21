@@ -1,5 +1,6 @@
 package com.android.deviceops.ui.screens
 
+import android.graphics.drawable.Drawable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -26,10 +28,13 @@ import androidx.wear.compose.material3.*
 import com.android.deviceops.data.AppInfo
 import com.android.deviceops.ui.theme.*
 import com.android.deviceops.viewmodel.ManageAppsViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun SearchResultsScreen(
-    query: String, onAppClick: (String) -> Unit,
+    query: String,
+    onAppClick: (String) -> Unit,
     vm: ManageAppsViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -49,56 +54,100 @@ fun SearchResultsScreen(
             contentPadding = PaddingValues(vertical = 20.dp)
         ) {
             item {
-                Row(verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(bottom = 10.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                ) {
                     Icon(Icons.Filled.Search, null, tint = TextTertiary,
                         modifier = Modifier.size(14.dp))
                     Spacer(Modifier.width(4.dp))
                     Text("\"$query\"", color = TextTertiary, fontSize = 12.sp)
                 }
             }
+
             if (results.isEmpty()) item {
                 Text("未找到应用", color = TextSecondary, fontSize = 13.sp)
             }
-            if (results.isNotEmpty()) item {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth().padding(horizontal = 12.dp)
-                        .clip(RoundedCornerShape(14.dp)).background(CardBg)
-                ) {
-                    results.forEachIndexed { idx, app ->
-                        SearchRow(app = app, onClick = { onAppClick(app.packageName) })
-                        if (idx < results.lastIndex)
-                            Spacer(Modifier.fillMaxWidth().height(0.5.dp).background(DividerCol))
-                    }
-                }
+
+            items(results.size, key = { results[it].packageName }) { idx ->
+                val app     = results[idx]
+                val isFirst = idx == 0
+                val isLast  = idx == results.lastIndex
+
+                SearchAppRow(
+                    app         = app,
+                    vm          = vm,
+                    isFirst     = isFirst,
+                    isLast      = isLast,
+                    showDivider = !isLast,
+                    onClick     = { onAppClick(app.packageName) }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun SearchRow(app: AppInfo, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        val bmp = remember(app.packageName) { app.icon.toBitmap(48, 48).asImageBitmap() }
-        Image(bmp, app.label, modifier = Modifier.size(34.dp).clip(CircleShape))
-        Spacer(Modifier.width(10.dp))
-        Column {
-            Text(app.label, color = TextPrimary, fontSize = 13.sp,
-                fontWeight = FontWeight.W500, maxLines = 1)
-            when {
-                app.countdownSeconds != null -> {
-                    val m = app.countdownSeconds / 60; val s = app.countdownSeconds % 60
-                    Text("停用中 $m:${s.toString().padStart(2, '0')}",
-                        color = ErrorRed, fontSize = 11.sp)
+private fun SearchAppRow(
+    app: AppInfo,
+    vm: ManageAppsViewModel,
+    isFirst: Boolean,
+    isLast: Boolean,
+    showDivider: Boolean,
+    onClick: () -> Unit
+) {
+    val context = LocalContext.current
+    var icon by remember(app.packageName) { mutableStateOf<ImageBitmap?>(null) }
+    LaunchedEffect(app.packageName) {
+        val drawable: Drawable? = vm.getIcon(app.packageName, context.packageManager)
+        icon = withContext(Dispatchers.Default) {
+            drawable?.toBitmap(48, 48)?.asImageBitmap()
+        }
+    }
+
+    val shape = RoundedCornerShape(
+        topStart    = if (isFirst) 14.dp else 0.dp,
+        topEnd      = if (isFirst) 14.dp else 0.dp,
+        bottomStart = if (isLast)  14.dp else 0.dp,
+        bottomEnd   = if (isLast)  14.dp else 0.dp,
+    )
+
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(shape)
+                .background(CardBg)
+                .clickable(onClick = onClick)
+                .padding(horizontal = 12.dp, vertical = 9.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier.size(36.dp).clip(CircleShape).background(SurfaceLow),
+                contentAlignment = Alignment.Center
+            ) {
+                icon?.let {
+                    Image(it, app.label, modifier = Modifier.size(36.dp).clip(CircleShape))
                 }
-                app.isDisabled -> Text("已停用", color = ErrorRed, fontSize = 11.sp)
-                else -> {}
             }
+            Spacer(Modifier.width(10.dp))
+            Column {
+                Text(app.label, color = TextPrimary, fontSize = 13.sp,
+                    fontWeight = FontWeight.W500, maxLines = 1)
+                when {
+                    app.countdownSeconds != null -> {
+                        val m = app.countdownSeconds / 60
+                        val s = app.countdownSeconds % 60
+                        Text("停用中 $m:${s.toString().padStart(2, '0')}",
+                            color = ErrorRed, fontSize = 11.sp)
+                    }
+                    app.isDisabled -> Text("已停用", color = ErrorRed, fontSize = 11.sp)
+                    else -> {}
+                }
+            }
+        }
+        if (showDivider) {
+            Spacer(Modifier.fillMaxWidth().height(0.5.dp).background(DividerCol))
         }
     }
 }

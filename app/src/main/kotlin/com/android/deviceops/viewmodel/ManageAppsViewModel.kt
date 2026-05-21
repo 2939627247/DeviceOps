@@ -5,6 +5,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
+import androidx.collection.LruCache
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.deviceops.DeviceAdminReceiver
@@ -33,10 +35,11 @@ class ManageAppsViewModel : ViewModel() {
     private val _disabledCount = MutableStateFlow(0)
     val disabledCount: StateFlow<Int> = _disabledCount
 
-    /** packageName → remaining seconds for test-disable countdown. */
     private val _countdowns = MutableStateFlow<Map<String, Long>>(emptyMap())
-
     private val countdownJobs = mutableMapOf<String, Job>()
+
+    // 图标 LRU 缓存（最多 100 个），避免重复 IO
+    private val iconCache = LruCache<String, Drawable>(100)
 
     init {
         viewModelScope.launch {
@@ -52,7 +55,6 @@ class ManageAppsViewModel : ViewModel() {
                             AppFilter.SYSTEM -> app.isSystemApp
                         }
                     }
-                    // Sort: test-disabled first → disabled second → alphabetical
                     .sortedWith(
                         compareByDescending<AppInfo> { it.countdownSeconds != null }
                             .thenByDescending { it.isDisabled }
@@ -65,26 +67,27 @@ class ManageAppsViewModel : ViewModel() {
         }
     }
 
-    // ── Load ─────────────────────────────────────────────────────────────────
-
+    // ── 加载应用列表（不加载图标）────────────────────────────────────────────
     fun loadApps(context: Context) {
-        if (_allApps.value.isNotEmpty()) return  // already loaded
+        if (_allApps.value.isNotEmpty()) return
         viewModelScope.launch(Dispatchers.IO) {
-            val pm    = context.packageManager
-            val dpm   = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-            val admin = ComponentName(context, DeviceAdminReceiver::class.java)
+            val pm      = context.packageManager
+            val dpm     = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val admin   = ComponentName(context, DeviceAdminReceiver::class.java)
             val isOwner = dpm.isDeviceOwnerApp(context.packageName)
 
-            val infos = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+            // ① 去掉 GET_META_DATA，速度提升显著
+            val infos = pm.getInstalledApplications(0)
             val apps  = infos.mapNotNull { info ->
                 if (info.packageName == context.packageName) return@mapNotNull null
                 val isHidden = if (isOwner)
-                    runCatching { dpm.isApplicationHidden(admin, info.packageName) }.getOrDefault(false)
+                    runCatching { dpm.isApplicationHidden(admin, info.packageName) }
+                        .getOrDefault(false)
                 else false
                 AppInfo(
                     packageName = info.packageName,
                     label       = pm.getApplicationLabel(info).toString(),
-                    icon        = pm.getApplicationIcon(info),
+                    // ② 不在这里加载图标，改为 UI 层按需懒加载
                     isSystemApp = (info.flags and ApplicationInfo.FLAG_SYSTEM) != 0,
                     isDisabled  = isHidden
                 )
@@ -93,7 +96,13 @@ class ManageAppsViewModel : ViewModel() {
         }
     }
 
-    // ── Accessors ─────────────────────────────────────────────────────────────
+    // ── 按需获取图标（带缓存，在 IO 线程调用）────────────────────────────────
+    suspend fun getIcon(packageName: String, pm: PackageManager): Drawable? =
+        withContext(Dispatchers.IO) {
+            iconCache[packageName] ?: try {
+                pm.getApplicationIcon(packageName).also { iconCache.put(packageName, it) }
+            } catch (_: Exception) { null }
+        }
 
     fun getAppInfo(packageName: String): AppInfo? =
         _allApps.value.find { it.packageName == packageName }
@@ -101,46 +110,35 @@ class ManageAppsViewModel : ViewModel() {
     fun setFilter(f: AppFilter) { _filter.value = f }
 
     // ── Actions ───────────────────────────────────────────────────────────────
-
     fun enableApp(context: Context, packageName: String) {
         cancelCountdown(packageName)
         setHidden(context, packageName, false)
         updateDisabledState(packageName, false)
-        val prefs = PreferencesManager(context)
-        prefs.saveDisabledApps(prefs.getDisabledApps() - packageName)
+        PreferencesManager(context).let { it.saveDisabledApps(it.getDisabledApps() - packageName) }
     }
 
     fun disableApp(context: Context, packageName: String) {
         cancelCountdown(packageName)
         setHidden(context, packageName, true)
         updateDisabledState(packageName, true)
-        val prefs = PreferencesManager(context)
-        prefs.saveDisabledApps(prefs.getDisabledApps() + packageName)
+        PreferencesManager(context).let { it.saveDisabledApps(it.getDisabledApps() + packageName) }
     }
 
-    /**
-     * Test-disable: hides the app for exactly 6 minutes, then auto-enables it.
-     * The countdown ticks every second and is reflected in [filteredApps].
-     */
     fun testDisableApp(context: Context, packageName: String) {
         cancelCountdown(packageName)
         setHidden(context, packageName, true)
         updateDisabledState(packageName, true)
-
         countdownJobs[packageName] = viewModelScope.launch {
-            var remaining = 6L * 60L   // 360 seconds
+            var remaining = 6L * 60L
             while (remaining > 0) {
                 _countdowns.value = _countdowns.value + (packageName to remaining)
                 delay(1_000)
                 remaining--
             }
             _countdowns.value = _countdowns.value - packageName
-            // Auto-enable when countdown reaches zero
             enableApp(context, packageName)
         }
     }
-
-    // ── Private helpers ───────────────────────────────────────────────────────
 
     private fun cancelCountdown(packageName: String) {
         countdownJobs[packageName]?.cancel()
