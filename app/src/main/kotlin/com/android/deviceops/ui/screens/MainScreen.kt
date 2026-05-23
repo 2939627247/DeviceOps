@@ -131,19 +131,19 @@ private fun SplitCard(
             .fillMaxWidth()
             .height(84.dp)
             .clip(RoundedCornerShape(42.dp))
-            .background(cardBg),
+            .background(cardBg)
+            .clickable(
+                interactionSource = labelSource,
+                indication        = null,
+                onClick           = onContainerClick
+            ),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // ── 父按钮区域 ─────────────────────────────────────────────────────
+        // 文字区域（无单独 clickable，整行 Row 已处理）
         Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .clickable(
-                    interactionSource = labelSource,
-                    indication        = null,
-                    onClick           = onContainerClick
-                )
                 .padding(start = 28.dp),
             contentAlignment = Alignment.CenterStart
         ) {
@@ -245,6 +245,7 @@ private fun ToggleSwitch(checked: Boolean, onToggle: () -> Unit) {
                 awaitEachGesture {
                     // ── 按下 ──────────────────────────────────────────────
                     val down = awaitFirstDown(requireUnconsumed = false)
+                    down.consume()  // 阻止冒泡到外层 Row clickable
                     isPressed  = true
                     isDragging = false
                     val startX     = down.position.x

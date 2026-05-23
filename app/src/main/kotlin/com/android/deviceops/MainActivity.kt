@@ -35,6 +35,8 @@ class MainActivity : ComponentActivity() {
         requestWindowFeature(android.view.Window.FEATURE_NO_TITLE)
         window.setWindowAnimations(0)
         super.onCreate(savedInstanceState)
+        // 隐藏状态栏（去掉顶部时间/图标显示）
+        window.insetsController?.hide(android.view.WindowInsets.Type.statusBars())
         setContent {
             DeviceOpsTheme {
                 AppScaffold {
