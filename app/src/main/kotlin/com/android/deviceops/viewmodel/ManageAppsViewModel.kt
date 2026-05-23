@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
-import androidx.collection.LruCache
+import android.util.LruCache
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.deviceops.DeviceAdminReceiver
