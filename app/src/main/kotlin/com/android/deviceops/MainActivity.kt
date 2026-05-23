@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
         try { window.insetsController?.hide(android.view.WindowInsets.Type.statusBars()) } catch (_: Exception) {}
         setContent {
             DeviceOpsTheme {
-                AppScaffold {
+                AppScaffold(timeText = {}) {
                     val nav = rememberSwipeDismissableNavController()
 
                     SwipeDismissableNavHost(
