@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.RotaryScrollableDefaults
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnDefaults
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.*
 import com.android.deviceops.data.AppFilter
@@ -28,12 +30,14 @@ fun FilterScreen(onBack: () -> Unit, vm: ManageAppsViewModel = viewModel()) {
     val columnState = rememberTransformingLazyColumnState()
     val options = listOf(AppFilter.ALL to "全部应用", AppFilter.USER to "用户应用", AppFilter.SYSTEM to "系统应用")
 
-    ScreenScaffold(scrollState = columnState) {
+    ScreenScaffold(scrollState = columnState) { contentPadding ->
         TransformingLazyColumn(
             state = columnState,
             modifier = Modifier.fillMaxSize().background(Black),
             horizontalAlignment = Alignment.CenterHorizontally,
-            contentPadding = PaddingValues(vertical = 24.dp)
+            contentPadding = contentPadding,
+            flingBehavior = TransformingLazyColumnDefaults.snapFlingBehavior(columnState),
+            rotaryScrollableBehavior = RotaryScrollableDefaults.snapBehavior(columnState)
         ) {
             item {
                 Text("筛选方式", color = TextPrimary, fontSize = 15.sp,

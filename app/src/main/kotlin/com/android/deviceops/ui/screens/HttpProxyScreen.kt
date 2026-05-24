@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.RotaryScrollableDefaults
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnDefaults
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.*
 import com.android.deviceops.ui.theme.*
@@ -37,12 +39,14 @@ fun HttpProxyScreen(onBack: () -> Unit, vm: HttpProxyViewModel = viewModel()) {
     val columnState = rememberTransformingLazyColumnState()
     val inputColor  = if (isSaved) TextSecondary else TextPrimary
 
-    ScreenScaffold(scrollState = columnState) {
+    ScreenScaffold(scrollState = columnState) { contentPadding ->
         TransformingLazyColumn(
             state = columnState,
             modifier = Modifier.fillMaxSize().background(Black),
             horizontalAlignment = Alignment.CenterHorizontally,
-            contentPadding = PaddingValues(vertical = 24.dp)
+            contentPadding = contentPadding,
+            flingBehavior = TransformingLazyColumnDefaults.snapFlingBehavior(columnState),
+            rotaryScrollableBehavior = RotaryScrollableDefaults.snapBehavior(columnState)
         ) {
             item {
                 Text("HTTP 代理", color = TextPrimary, fontSize = 15.sp,
