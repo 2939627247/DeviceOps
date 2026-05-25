@@ -52,7 +52,7 @@ fun AppSettingsScreen(
     val countdown  = liveApp?.countdownSeconds
     val columnState = rememberTransformingLazyColumnState()
 
-    ScreenScaffold(scrollState = columnState) { contentPadding ->
+    ScreenScaffold(scrollState = columnState, scrollIndicator = {}) { contentPadding ->
         TransformingLazyColumn(
             state = columnState,
             modifier = Modifier.fillMaxSize().background(Black),

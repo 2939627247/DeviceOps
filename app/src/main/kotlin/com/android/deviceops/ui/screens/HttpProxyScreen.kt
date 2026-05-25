@@ -39,7 +39,7 @@ fun HttpProxyScreen(onBack: () -> Unit, vm: HttpProxyViewModel = viewModel()) {
     val columnState = rememberTransformingLazyColumnState()
     val inputColor  = if (isSaved) TextSecondary else TextPrimary
 
-    ScreenScaffold(scrollState = columnState) { contentPadding ->
+    ScreenScaffold(scrollState = columnState, scrollIndicator = {}) { contentPadding ->
         TransformingLazyColumn(
             state = columnState,
             modifier = Modifier.fillMaxSize().background(Black),

@@ -30,7 +30,7 @@ fun FilterScreen(onBack: () -> Unit, vm: ManageAppsViewModel = viewModel()) {
     val columnState = rememberTransformingLazyColumnState()
     val options = listOf(AppFilter.ALL to "全部应用", AppFilter.USER to "用户应用", AppFilter.SYSTEM to "系统应用")
 
-    ScreenScaffold(scrollState = columnState) { contentPadding ->
+    ScreenScaffold(scrollState = columnState, scrollIndicator = {}) { contentPadding ->
         TransformingLazyColumn(
             state = columnState,
             modifier = Modifier.fillMaxSize().background(Black),
