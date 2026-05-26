@@ -137,7 +137,7 @@ private fun SplitCard(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .graphicsLayer { scaleX = cardScale; scaleY = cardScale }
+                .scale(cardScale)
                 .padding(start = 28.dp),
             contentAlignment = Alignment.CenterStart
         ) {
