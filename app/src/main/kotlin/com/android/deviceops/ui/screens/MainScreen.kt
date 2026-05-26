@@ -118,13 +118,6 @@ private fun SplitCard(
         label          = "cardBg"
     )
 
-    // 文字微缩：按下 0.975，松开 1.0（弹性回弹）
-    val labelScale by animateFloatAsState(
-        targetValue   = if (isLabelPressed) 0.975f else 1f,
-        animationSpec = if (isLabelPressed) tween(80)
-                        else spring(dampingRatio = 0.5f, stiffness = 500f),
-        label         = "labelScale"
-    )
 
     Row(
         modifier = Modifier
@@ -139,11 +132,12 @@ private fun SplitCard(
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // 文字区域（无单独 clickable，整行 Row 已处理）
+        // 内容整体缩放（卡片轮廓不动，内容 recoil）
         Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
+                .graphicsLayer { scaleX = cardScale; scaleY = cardScale }
                 .padding(start = 28.dp),
             contentAlignment = Alignment.CenterStart
         ) {
@@ -153,7 +147,7 @@ private fun SplitCard(
                 fontWeight    = FontWeight.W400,
                 color         = White,
                 letterSpacing = (-0.1).sp,
-                modifier      = Modifier.scale(labelScale)
+                modifier      = Modifier
             )
         }
 
