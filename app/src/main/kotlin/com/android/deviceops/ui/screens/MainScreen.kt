@@ -118,6 +118,13 @@ private fun SplitCard(
         label          = "cardBg"
     )
 
+    // One UI recoil：内容区缩放，卡片轮廓不变
+    val cardScale by animateFloatAsState(
+        targetValue   = if (isLabelPressed) 0.97f else 1f,
+        animationSpec = if (isLabelPressed) tween(80) else spring(dampingRatio = 0.4f, stiffness = 500f),
+        label         = "cardScale"
+    )
+
 
     Row(
         modifier = Modifier
