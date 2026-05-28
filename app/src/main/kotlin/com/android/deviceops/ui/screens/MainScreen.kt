@@ -120,13 +120,13 @@ private fun SplitCard(
 
     // One UI recoil：内容区缩放，卡片轮廓不变
     val cardScale by animateFloatAsState(
-        targetValue   = if (isLabelPressed) 0.97f else 1f,
-        animationSpec = if (isLabelPressed) tween(80) else spring(dampingRatio = 0.4f, stiffness = 500f),
+        targetValue   = if (isLabelPressed) 0.95f else 1f,
+        animationSpec = if (isLabelPressed) tween(100) else spring(dampingRatio = 0.65f, stiffness = 700f),
         label         = "cardScale"
     )
 
 
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(84.dp)
@@ -136,46 +136,33 @@ private fun SplitCard(
                 interactionSource = labelSource,
                 indication        = null,
                 onClick           = onContainerClick
-            ),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // 内容整体缩放（卡片轮廓不动，内容 recoil）
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                .scale(cardScale)
-                .padding(start = 28.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Text(
-                text          = label,
-                fontSize      = 21.sp,
-                fontWeight    = FontWeight.W400,
-                color         = White,
-                letterSpacing = (-0.1).sp,
-                modifier      = Modifier
             )
-        }
-
-        // ── 分隔线：1dp × 42dp ─────────────────────────────────────────────
-        Box(
-            modifier = Modifier
-                .width(1.dp)
-                .height(42.dp)
-                .background(DividerCol)
-        )
-        Spacer(Modifier.width(4.dp))
-
-        // ── 开关控制区域：94dp，右内边距 12dp ─────────────────────────────
-        Box(
-            modifier = Modifier
-                .width(94.dp)
-                .fillMaxHeight()
-                .padding(end = 12.dp),
-            contentAlignment = Alignment.Center
+    ) {
+        // 整个 containerView 缩放，卡片轮廓/背景不动
+        Row(
+            modifier          = Modifier.fillMaxSize().scale(cardScale),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            ToggleSwitch(checked = checked, onToggle = onCheckedChange)
+            Box(
+                modifier         = Modifier.weight(1f).fillMaxHeight().padding(start = 28.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Text(
+                    text          = label,
+                    fontSize      = 21.sp,
+                    fontWeight    = FontWeight.W400,
+                    color         = White,
+                    letterSpacing = (-0.1).sp,
+                )
+            }
+            Box(Modifier.width(1.dp).height(42.dp).background(DividerCol))
+            Spacer(Modifier.width(4.dp))
+            Box(
+                modifier         = Modifier.width(94.dp).fillMaxHeight().padding(end = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                ToggleSwitch(checked = checked, onToggle = onCheckedChange)
+            }
         }
     }
 }
