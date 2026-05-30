@@ -118,10 +118,16 @@ private fun SplitCard(
         label          = "cardBg"
     )
 
-    // One UI recoil：内容区缩放，卡片轮廓不变
+    // sesl_recoil_card_selector.xml 精确参数
+    // Press:   100ms LinearEasing → 0.98
+    // Release: 350ms CubicBezierEasing(0.22, 0.25, 0, 1) → 1.0
+    val recoilEasing = CubicBezierEasing(0.22f, 0.25f, 0f, 1f)
     val cardScale by animateFloatAsState(
-        targetValue   = if (isLabelPressed) 0.95f else 1f,
-        animationSpec = if (isLabelPressed) tween(100) else spring(dampingRatio = 0.65f, stiffness = 700f),
+        targetValue   = if (isLabelPressed) 0.98f else 1f,
+        animationSpec = if (isLabelPressed)
+            tween(durationMillis = 100, easing = LinearEasing)
+        else
+            tween(durationMillis = 350, easing = recoilEasing),
         label         = "cardScale"
     )
 
