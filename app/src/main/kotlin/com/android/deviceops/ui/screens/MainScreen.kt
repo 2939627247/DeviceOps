@@ -100,6 +100,12 @@ fun MainScreen(
  *  - 1dp 灰细分隔线（视觉分隔，不拦截事件）
  *  - 右侧开关区域：支持点击切换 + 拖拽手势 + 实时颜色插值
  */
+/**
+ * 精确还原 HTML 动效规范：
+ *  背景：FADING_IN 140ms CubicBezier(0.5,0,0.2,1) → HOLD → FADING_OUT 415ms CubicBezier(0.25,1,0.5,1)
+ *  背景色：rgb(37,37,40)→rgb(81,81,83)
+ *  文字：仅 label 缩放到 0.975，240ms "物理撞墙曲线" / 恢复 220ms easeOutCubic
+ */
 @Composable
 private fun SplitCard(
     label: String,
@@ -107,30 +113,41 @@ private fun SplitCard(
     onContainerClick: () -> Unit,
     onCheckedChange: () -> Unit,
 ) {
-    // 父区域按压状态（通过 InteractionSource 获取，不需要手动 gesture）
-    val labelSource = remember { MutableInteractionSource() }
+    val labelSource   = remember { MutableInteractionSource() }
     val isLabelPressed by labelSource.collectIsPressedAsState()
 
-    // 卡片底色：按下 #2E2E32，松开 #252528
-    val cardBg by animateColorAsState(
-        targetValue    = if (isLabelPressed) CardBgPressed else CardBg,
-        animationSpec  = if (isLabelPressed) tween(80) else tween(250),
-        label          = "cardBg"
-    )
+    // ── 背景动画（Animatable 支持中途打断）────────────────────────────────
+    val bgRatio = remember { Animatable(0f) }
+    val bgEaseIn  = CubicBezierEasing(0.5f,  0f,   0.2f, 1f)
+    val bgEaseOut = CubicBezierEasing(0.25f, 1f,   0.5f, 1f)
 
-    // sesl_recoil_card_selector.xml 精确参数
-    // Press:   100ms LinearEasing → 0.98
-    // Release: 350ms CubicBezierEasing(0.22, 0.25, 0, 1) → 1.0
-    val recoilEasing = CubicBezierEasing(0.22f, 0.25f, 0f, 1f)
-    val cardScale by animateFloatAsState(
-        targetValue   = if (isLabelPressed) 0.98f else 1f,
+    LaunchedEffect(isLabelPressed) {
+        if (isLabelPressed) {
+            bgRatio.animateTo(1f, tween(140, easing = bgEaseIn))
+        } else {
+            bgRatio.animateTo(0f, tween(415, easing = bgEaseOut))
+        }
+    }
+
+    // rgb(37,37,40) → rgb(81,81,83)
+    val r = (37 + (81 - 37) * bgRatio.value).toInt()
+    val g = (37 + (81 - 37) * bgRatio.value).toInt()
+    val b = (40 + (83 - 40) * bgRatio.value).toInt()
+    val cardBg = Color(r, g, b)
+
+    // ── 文字缩放（仅 label，物理撞墙曲线近似）────────────────────────────
+    // Press:   240ms, 近似 1-(1-t^1.6)^3 → CubicBezier(0.4, 0, 0.2, 1)
+    // Release: 220ms, easeOutCubic = CubicBezier(0.33, 1, 0.68, 1)
+    val textEaseIn  = CubicBezierEasing(0.4f, 0f,  0.2f, 1f)
+    val textEaseOut = CubicBezierEasing(0.33f, 1f, 0.68f, 1f)
+    val textScale by animateFloatAsState(
+        targetValue   = if (isLabelPressed) 0.975f else 1f,
         animationSpec = if (isLabelPressed)
-            tween(durationMillis = 100, easing = LinearEasing)
+            tween(240, easing = textEaseIn)
         else
-            tween(durationMillis = 350, easing = recoilEasing),
-        label         = "cardScale"
+            tween(220, easing = textEaseOut),
+        label = "textScale"
     )
-
 
     Box(
         modifier = Modifier
@@ -144,11 +161,11 @@ private fun SplitCard(
                 onClick           = onContainerClick
             )
     ) {
-        // 整个 containerView 缩放，卡片轮廓/背景不动
         Row(
-            modifier          = Modifier.fillMaxSize().scale(cardScale),
+            modifier          = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // 父按钮区域
             Box(
                 modifier         = Modifier.weight(1f).fillMaxHeight().padding(start = 28.dp),
                 contentAlignment = Alignment.CenterStart
@@ -159,10 +176,15 @@ private fun SplitCard(
                     fontWeight    = FontWeight.W400,
                     color         = White,
                     letterSpacing = (-0.1).sp,
+                    modifier      = Modifier.scale(textScale)   // 只有文字缩放
                 )
             }
+
+            // 1dp 分隔线
             Box(Modifier.width(1.dp).height(42.dp).background(DividerCol))
             Spacer(Modifier.width(4.dp))
+
+            // 开关区域
             Box(
                 modifier         = Modifier.width(94.dp).fillMaxHeight().padding(end = 12.dp),
                 contentAlignment = Alignment.Center
@@ -173,14 +195,7 @@ private fun SplitCard(
     }
 }
 
-/**
- * 自定义开关：
- *  轨道 58×34dp，radius 17dp
- *  滑块 27dp，#FCFCFF，垂直居中（top=3.5dp），左偏移 3.5dp
- *  ON → translateX 24dp；OFF → translateX 0
- *  按压：滑块缩至 23dp + 白色反馈光圈（opacity 0.12）
- *  拖拽：实时插值轨道颜色（Off rgb(99,99,104) ↔ On rgb(66,105,255)）
- */
+
 @Composable
 private fun ToggleSwitch(checked: Boolean, onToggle: () -> Unit) {
     val density      = LocalDensity.current
